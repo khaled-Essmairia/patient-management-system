@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('License management', ~{::main})}">
+<body>
+<main>
+    <div class="page-head"><div><h1>[[#{t.license_management}]]</h1><p>[[#{t.the_application_needs_a_valid_license_to_open_its_menu}]]</p></div></div>
+
+    <div class="card" style="margin-bottom:16px">
+        <h2>[[#{t.current_license}]]</h2>
+        <div class="license-state" th:if="${license.valid}">
+            <span class="badge s-completed">[[#{t.active}]]</span>
+            <span>
+                <span th:if="${!#strings.isEmpty(license.customer)}">[[#{t.licensed_to}]] <b th:text="${license.customer}">Client</b>. </span>
+                [[#{t.valid_until}]] <b th:text="${@fmt.date(license.expires)}">2027-01-01</b>.
+                <span th:if="${license.bound}">[[#{t.tied_to_this_computer}]]</span>
+            </span>
+        </div>
+        <div class="license-state" th:unless="${license.valid}">
+            <span class="badge s-unpaid">[[#{t.not_active}]]</span>
+            <span><span th:text="${@tr.t(license.message)}">No license has been entered yet.</span>
+                [[#{t.the_menu_stays_hidden_until_a_valid_license_is_entered}]]</span>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+        <h2>[[#{t.this_computer}]]</h2>
+        <p class="muted" style="margin-top:0">[[#{t.machine_id_of_this_computer_send_it_to_your_provider_to_get_a_license_that_works_only_on_this_computer}]]</p>
+        <div class="file-drop">
+            <input type="text" id="machine-id" class="mono" readonly th:value="${machineId}"
+                   style="max-width:320px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;font-size:16px;letter-spacing:1px">
+            <button type="button" class="btn ghost" id="copy-machine-id">[[#{t.copy}]]</button>
+            <span id="machine-id-copied" class="muted"></span>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+        <h2>[[#{t.enter_a_license}]]</h2>
+        <form method="post" th:action="@{/secretary/license}" class="doc-form">
+            <label for="key"><b>[[#{t.license_key}]]</b></label>
+            <textarea id="key" name="key" rows="5" required class="mono" th:placeholder="#{t.paste_the_license_key_here}" style="margin:6px 0 12px"></textarea>
+            <button type="submit" class="btn success">[[#{t.save_license}]]</button>
+        </form>
+    </div>
+
+    <div class="card table-wrap" data-paged th:if="${!#lists.isEmpty(history)}">
+        <h2>[[#{t.previous_licenses}]]</h2>
+        <table class="list">
+            <thead><tr><th>[[#{t.client}]]</th><th>[[#{t.valid_until}]]</th><th>[[#{t.entered_on}]]</th><th></th></tr></thead>
+            <tbody th:each="h, st : ${history}" data-row>
+            <tr>
+                <td th:text="${h.customer ?: '-'}">Client</td>
+                <td th:text="${@fmt.date(h.expiresOn)}">2027-01-01</td>
+                <td th:text="${@fmt.dateTime(h.activatedAt)}">2026-10-16 10:00</td>
+                <td><span th:if="${st.first}" class="badge spec">[[#{t.latest}]]</span></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script th:inline="javascript">
+        document.getElementById('copy-machine-id').addEventListener('click', function () {
+            var field = document.getElementById('machine-id');
+            field.select();
+            var done = function () {
+                var s = document.getElementById('machine-id-copied');
+                s.textContent = /*[[#{t.copied}]]*/ 'Copied';
+                setTimeout(function () { s.textContent = ''; }, 2500);
+            };
+            if (navigator.clipboard) navigator.clipboard.writeText(field.value).then(done, function () { document.execCommand('copy'); done(); });
+            else { document.execCommand('copy'); done(); }
+        });
+    </script>
+</main>
+</body>
+</html>

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('License required', ~{::main})}">
+<body>
+<main>
+    <div class="card" style="max-width:560px;margin:40px auto;text-align:center">
+        <h2>[[#{t.the_license_of_this_application_is_not_active}]]</h2>
+        <p class="muted" th:text="#{t.please_ask_the_secretary_to_enter_a_valid_license_in_license_management_you_can_sign_in_again_as_soon_as_it_is_done}"></p>
+        <a class="btn" th:href="@{/}">[[#{t.try_again}]]</a>
+    </div>
+</main>
+</body>
+</html>
