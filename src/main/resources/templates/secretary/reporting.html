@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Reporting', ~{::main})}">
+<body>
+<main>
+    <div class="page-head">
+        <div><h1>[[#{t.reporting}]]</h1><p>[[#{t.export_the_data_of_the_application_as_csv_files_they_open_in_excel}]]</p></div>
+        <a class="btn success" th:href="@{/secretary/reporting/export-all}"><svg class="icon"><use href="#i-download"/></svg>[[#{t.export_all_tables_zip}]]</a>
+    </div>
+    <div class="card table-wrap" data-paged>
+        <table class="list">
+            <thead><tr><th>[[#{t.table}]]</th><th class="num">[[#{t.rows}]]</th><th></th></tr></thead>
+            <tbody th:each="t : ${tables}" data-row>
+            <tr>
+                <td th:text="${t.name}"></td>
+                <td class="num" th:text="${t.rows}"></td>
+                <td class="actions"><a class="btn small ghost" th:href="@{/secretary/reporting/export/{n}(n=${t.name})}"><svg class="icon" style="width:14px;height:14px"><use href="#i-download"/></svg>[[#{t.export_csv}]]</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <p class="muted">[[#{t.password_hashes_of_the_sign_in_accounts_are_never_exported}]]</p>
+</main>
+</body>
+</html>
