@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html th:lang="${#locale.language}" th:dir="${#locale.language == 'ar' ? 'rtl' : 'ltr'}" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:fragment="layout(title, content)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${@tr.t(title)} + ' · ' + ${clinicName}">Clinic</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
+    <symbol id="i-activity" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol>
+    <symbol id="i-message" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+</svg>
+
+<div class="app">
+    <aside class="sidebar" id="sidebar">
+        <div class="brand"><span class="logo">+</span><span th:text="${clinicName}">Clinic</span></div>
+
+        <nav class="nav">
+            <th:block sec:authorize="hasRole('SECRETARY')">
+                <th:block th:if="${licenseValid}">
+                    <div class="section">[[#{t.overview}]]</div>
+                    <a th:href="@{/secretary}" th:classappend="${currentPath == '/secretary'} ? 'active'"><svg class="icon"><use href="#i-home"/></svg>[[#{t.dashboard}]]</a>
+                    <div class="section">[[#{t.patients}]]</div>
+                    <a th:href="@{/secretary/patients}" th:classappend="${#strings.startsWith(currentPath, '/secretary/patients')} ? 'active'"><svg class="icon"><use href="#i-users"/></svg>[[#{t.patients}]]</a>
+                    <a th:href="@{/secretary/appointments}" th:classappend="${#strings.startsWith(currentPath, '/secretary/appointments')} ? 'active'"><svg class="icon"><use href="#i-calendar"/></svg>[[#{t.appointments}]]</a>
+                    <a th:href="@{/secretary/consultations}" th:classappend="${#strings.startsWith(currentPath, '/secretary/consultations')} ? 'active'"><svg class="icon"><use href="#i-activity"/></svg>[[#{t.consultations}]]</a>
+                    <a th:href="@{/prescriptions}" th:classappend="${#strings.startsWith(currentPath, '/prescriptions')} ? 'active'"><svg class="icon"><use href="#i-file"/></svg>[[#{t.prescriptions}]]</a>
+                    <a th:href="@{/secretary/import}" th:classappend="${#strings.startsWith(currentPath, '/secretary/import')} ? 'active'"><svg class="icon"><use href="#i-upload"/></svg>[[#{t.import_patients}]]</a>
+                    <div class="section">[[#{t.cabinet}]]</div>
+                    <a th:href="@{/secretary/invoices}" th:classappend="${#strings.startsWith(currentPath, '/secretary/invoices')} ? 'active'"><svg class="icon"><use href="#i-card"/></svg>[[#{t.invoices_payments}]]</a>
+                    <a th:href="@{/secretary/reports}" th:classappend="${#strings.startsWith(currentPath, '/secretary/reports')} ? 'active'"><svg class="icon"><use href="#i-file"/></svg>[[#{t.reports}]]</a>
+                    <a th:href="@{/secretary/feedback}" th:classappend="${#strings.startsWith(currentPath, '/secretary/feedback')} ? 'active'"><svg class="icon"><use href="#i-message"/></svg>[[#{t.feedback}]]</a>
+                    <a th:href="@{/secretary/doctors}" th:classappend="${#strings.startsWith(currentPath, '/secretary/doctors')} ? 'active'"><svg class="icon"><use href="#i-user"/></svg>[[#{t.doctor_profile}]]</a>
+                    <div class="section">[[#{t.system_administration}]]</div>
+                    <a th:href="@{/secretary/admin/profile}" th:classappend="${#strings.startsWith(currentPath, '/secretary/admin')} ? 'active'"><svg class="icon"><use href="#i-shield"/></svg>[[#{t.admin_profile}]]</a>
+                    <a th:href="@{/secretary/backups}" th:classappend="${#strings.startsWith(currentPath, '/secretary/backups')} ? 'active'"><svg class="icon"><use href="#i-download"/></svg>[[#{t.backups}]]</a>
+                    <div class="section">[[#{t.data}]]</div>
+                    <a th:href="@{/secretary/reporting}" th:classappend="${#strings.startsWith(currentPath, '/secretary/reporting')} ? 'active'"><svg class="icon"><use href="#i-chart"/></svg>[[#{t.reporting}]]</a>
+                </th:block>
+                <div class="section">[[#{t.license}]]</div>
+                <a th:href="@{/secretary/license}" th:classappend="${#strings.startsWith(currentPath, '/secretary/license')} ? 'active'"><svg class="icon"><use href="#i-key"/></svg>[[#{t.license_management}]]</a>
+            </th:block>
+
+            <th:block sec:authorize="hasRole('DOCTOR')" th:if="${licenseValid}">
+                <div class="section">[[#{t.my_work}]]</div>
+                <a th:href="@{/doctor}" th:classappend="${currentPath == '/doctor'} ? 'active'"><svg class="icon"><use href="#i-home"/></svg>[[#{t.dashboard}]]</a>
+                <a th:href="@{/doctor/appointments}" th:classappend="${#strings.startsWith(currentPath, '/doctor/appointments')} ? 'active'"><svg class="icon"><use href="#i-calendar"/></svg>[[#{t.my_appointments}]]</a>
+                <a th:href="@{/prescriptions}" th:classappend="${#strings.startsWith(currentPath, '/prescriptions')} ? 'active'"><svg class="icon"><use href="#i-file"/></svg>[[#{t.prescriptions}]]</a>
+                <a th:href="@{/doctor/reports}" th:classappend="${#strings.startsWith(currentPath, '/doctor/reports')} ? 'active'"><svg class="icon"><use href="#i-file"/></svg>[[#{t.my_reports}]]</a>
+                <a th:href="@{/doctor/profile}" th:classappend="${#strings.startsWith(currentPath, '/doctor/profile')} ? 'active'"><svg class="icon"><use href="#i-user"/></svg>[[#{t.my_profile}]]</a>
+            </th:block>
+        </nav>
+
+        <div class="langs">
+            <a href="?lang=fr" th:classappend="${#locale.language == 'fr'} ? 'on'">[[#{t.fran_ais}]]</a>
+            <a href="?lang=ar" th:classappend="${#locale.language == 'ar'} ? 'on'">العربية</a>
+            <a href="?lang=en" th:classappend="${#locale.language == 'en'} ? 'on'">[[#{t.english}]]</a>
+        </div>
+        <div class="userbox">
+            <span class="avatar" th:text="${#strings.toUpperCase(#strings.substring(meName, 0, 1))}">U</span>
+            <span class="who"><span th:text="${meName}">User</span>
+                <small sec:authorize="hasRole('SECRETARY')">[[#{t.secretary}]]</small>
+                <small sec:authorize="hasRole('DOCTOR')">[[#{t.doctor}]]</small></span>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" th:title="#{t.sign_out}"><svg class="icon"><use href="#i-logout"/></svg></button>
+            </form>
+        </div>
+    </aside>
+
+    <div class="main-col">
+        <div class="mobilebar"><button type="button" id="menuBtn" th:attr="aria-label=#{t.menu}">&#9776;</button><b th:text="${clinicName}">Clinic</b></div>
+        <div class="flash" th:if="${licenseDaysLeft != null}" style="padding-bottom:0">
+            <div class="warn-banner" th:text="${licenseDaysLeft == 0 ? @tr.t('Your license ends today.') : #messages.msg('t.license_days_left', licenseDaysLeft)}"></div>
+        </div>
+        <div class="flash">
+            <div class="alert ok auto" th:if="${success}" th:text="${@tr.t(success)}"></div>
+            <div class="alert err" th:if="${error}" th:text="${@tr.t(error)}"></div>
+        </div>
+        <th:block th:replace="${content}"></th:block>
+    </div>
+</div>
+<script th:inline="javascript">
+    window.I18N = {
+        show: /*[[#{t.show}]]*/ 'Show', perPage: /*[[#{t.per_page}]]*/ 'per page',
+        add: /*[[#{t.add}]]*/ 'Add', addLine: /*[[#{t.add_a_line}]]*/ 'Add a line',
+        search: /*[[#{t.search_in_this_table}]]*/ 'Search in this table...',
+        noEntries: /*[[#{t.no_entries}]]*/ 'No entries', noMatch: /*[[#{t.no_match_found}]]*/ 'No match found',
+        showing: /*[[#{t.showing}]]*/ 'Showing', of: /*[[#{t.of}]]*/ 'of',
+        filteredFrom: /*[[#{t.filtered_from}]]*/ 'filtered from',
+        removeLine: /*[[#{t.remove_this_line_it_is_deleted_from_the_file_when_you_save}]]*/ 'Remove this line?'
+    };
+</script>
+<script th:src="@{/js/paging.js}"></script>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

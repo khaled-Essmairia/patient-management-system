@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Top bar of document-style forms: Save / Cancel on the left, breadcrumb on the right -->
+<div class="formbar" th:fragment="formbar(formId, cancelUrl, section, sectionUrl, current)">
+    <div class="left">
+        <button type="submit" class="btn success" th:attr="form=${formId}">&#10003; [[#{t.save}]]</button>
+        <a class="btn ghost" th:href="@{${cancelUrl}}">[[#{t.cancel}]]</a>
+    </div>
+    <div class="crumbs"><a th:href="@{/}">[[#{t.home}]]</a> / <a th:href="@{${sectionUrl}}" th:text="${@tr.t(section)}">Section</a> / <span th:text="${@tr.t(current)}">Current</span></div>
+</div>
+
+<!-- Lists the validation messages of the whole form -->
+<div class="alert err" th:fragment="errors" th:if="${#fields.hasErrors('*')}">
+    <b>[[#{t.please_correct_the_following}]]</b>
+    <ul><li th:each="e : ${#fields.detailedErrors()}" th:text="${@tr.t(e.message)}"></li></ul>
+</div>
+
+<nav class="pager" th:fragment="pager(page, url, qs)" th:if="${page.totalPages > 1}">
+    <a class="pg" th:if="${page.hasPrevious()}" th:href="@{${url + '?page=' + (page.number - 1) + qs}}">&lsaquo; [[#{t.previous}]]</a>
+    <span class="pg-info" th:text="#{t.page} + ' ' + ${page.number + 1} + ' ' + #{t.of} + ' ' + ${page.totalPages} + ' (' + ${page.totalElements} + ' ' + #{t.records} + ')'"></span>
+    <a class="pg" th:if="${page.hasNext()}" th:href="@{${url + '?page=' + (page.number + 1) + qs}}">[[#{t.next}]] &rsaquo;</a>
+</nav>
+
+</body>
+</html>
