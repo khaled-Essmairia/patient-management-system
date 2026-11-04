@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html th:lang="${#locale.language}" th:dir="${#locale.language == 'ar' ? 'rtl' : 'ltr'}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="#{t.sign_in} + ' · ' + ${clinicName}">Sign in</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="auth-wrap">
+    <section class="auth-hero">
+        <h1 th:text="${clinicName}">Clinic</h1>
+        <p>[[#{t.patient_files_appointments_consultations_and_billing_in_one_calm_simple_place}]]</p>
+    </section>
+    <section class="auth-card">
+        <div class="box">
+            <h2>[[#{t.welcome_back}]]</h2>
+            <p class="muted">[[#{t.sign_in_to_continue}]]</p>
+            <div class="alert err" th:if="${param.error}">[[#{t.wrong_username_or_password}]]</div>
+            <div class="alert ok" th:if="${param.logout}">[[#{t.you_have_been_signed_out}]]</div>
+            <form th:action="@{/login}" method="post">
+                <label for="username">[[#{t.username}]]</label>
+                <input id="username" name="username" autofocus required>
+                <label for="password">[[#{t.password}]]</label>
+                <input id="password" name="password" type="password" required>
+                <button class="btn" type="submit">[[#{t.sign_in}]]</button>
+            </form>
+            <div class="langs-login">
+                <a href="?lang=fr">[[#{t.fran_ais}]]</a> · <a href="?lang=ar">العربية</a> · <a href="?lang=en">[[#{t.english}]]</a>
+            </div>
+        </div>
+    </section>
+</div>
+</body>
+</html>

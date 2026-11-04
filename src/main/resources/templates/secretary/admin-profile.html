@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Admin profile', ~{::main})}">
+<body>
+<main>
+    <div th:replace="~{fragments/parts :: formbar('pwdForm', '/secretary', 'System administration', '/secretary/admin/profile', 'Admin profile')}"></div>
+    <h1 class="page-title">[[#{h.system}]] <b>[[#{h.administration}]]</b></h1>
+    <h2 class="subtitle">[[#{t.admin_profile_change_the_password}]]</h2>
+
+    <form id="pwdForm" class="doc-form" th:action="@{/secretary/admin/profile}" th:object="${form}" method="post" autocomplete="off">
+        <div th:replace="~{fragments/parts :: errors}"></div>
+        <div class="kv-row">
+            <table class="kv">
+                <tr><td class="k">[[#{t.username}]]</td><td><input class="ro" readonly th:value="${account.username}"></td></tr>
+                <tr><td class="k">[[#{t.name}]]</td><td><input class="ro" readonly th:value="${account.name}"></td></tr>
+            </table>
+            <table class="kv">
+                <tr><td class="k">[[#{t.old_password}]] <i>*</i></td><td><input type="password" th:field="*{oldPassword}" required autocomplete="current-password"></td></tr>
+                <tr><td class="k">[[#{t.new_password}]] <i>*</i></td><td><input type="password" th:field="*{newPassword}" required minlength="6" autocomplete="new-password"></td></tr>
+                <tr><td class="k">[[#{t.confirm_password}]] <i>*</i></td><td><input type="password" th:field="*{confirmPassword}" required minlength="6" autocomplete="new-password"></td></tr>
+            </table>
+        </div>
+        <button type="submit" class="btn success">&#10003; [[#{t.change_password}]]</button>
+        <a class="btn ghost" th:href="@{/secretary}">[[#{t.cancel}]]</a>
+    </form>
+</main>
+</body>
+</html>
