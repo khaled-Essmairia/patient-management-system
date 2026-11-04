@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Import patients', ~{::main})}">
+<body>
+<main>
+    <div class="page-head">
+        <div><h1>[[#{t.import_patients}]]</h1><p>[[#{t.add_many_patients_at_once_from_a_csv_file}]]</p></div>
+        <a class="btn ghost" th:href="@{/secretary/import/template}"><svg class="icon"><use href="#i-download"/></svg>[[#{t.download_the_template}]]</a>
+    </div>
+
+    <div class="card" th:if="${importResult != null}" style="margin-bottom:16px">
+        <h2>[[#{t.import_result}]]</h2>
+        <div class="stats" style="margin-bottom:10px">
+            <div class="stat green"><div class="v" th:text="${importResult.imported}">0</div><div class="l">[[#{t.imported}]]</div></div>
+            <div class="stat orange"><div class="v" th:text="${importResult.duplicates}">0</div><div class="l">[[#{t.already_existing_skipped}]]</div></div>
+            <div class="stat" style="border-color:var(--danger)"><div class="v" th:text="${importResult.rejected}">0</div><div class="l">[[#{t.rejected}]]</div></div>
+        </div>
+        <div th:if="${importResult.rejected > 0}">
+            <p class="muted" style="margin:0 0 6px">[[#{t.fix_these_lines_in_your_file_and_import_it_again_lines_already_imported_are_skipped_automatically}]]</p>
+            <ul style="margin:0;padding-left:18px;max-height:240px;overflow:auto">
+                <li th:each="e, st : ${importResult.errors}" th:if="${st.index < 200}" th:text="${e}"></li>
+            </ul>
+            <p class="muted" th:if="${importResult.rejected > 200}" th:text="#{t.and_more(${importResult.rejected - 200})}"></p>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+        <h2>[[#{t.1_fill_the_template}]]</h2>
+        <div class="hint-box" th:text="#{t.download_the_template_open_it_in_excel_or_google_sheets_fill_one_patient_per_line_delete_the_two_example_lines_and_save_it_as_csv}"></div>
+        <div class="table-wrap">
+            <table class="list">
+                <thead><tr><th>[[#{t.column}]]</th><th>[[#{t.required}]]</th><th>[[#{t.accepted_values}]]</th></tr></thead>
+                <tbody>
+                <tr><td><code>first_name</code></td><td>[[#{t.yes}]]</td><td>[[#{t.text}]]</td></tr>
+                <tr><td><code>last_name</code></td><td>[[#{t.yes}]]</td><td>[[#{t.text}]]</td></tr>
+                <tr><td><code>gender</code></td><td>[[#{t.yes}]]</td><td>[[#{t.m_or_f_male_female}]]</td></tr>
+                <tr><td><code>date_of_birth</code></td><td>[[#{t.yes}]]</td><td>[[#{t.yyyy_mm_dd_1985_03_14_or_dd_mm_yyyy_14_03_1985}]]</td></tr>
+                <tr><td><code>phone</code></td><td>[[#{t.yes}]]</td><td>[[#{t.text}]]</td></tr>
+                <tr><td><code>note</code></td><td>[[#{t.no}]]</td><td>[[#{t.free_text}]]</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="muted" style="margin-bottom:0">[[#{t.a_patient_with_the_same_first_name_last_name_and_date_of_birth_that_already_exists_is_skipped_not_duplicated}]]</p>
+    </div>
+
+    <div class="card">
+        <h2>[[#{t.2_upload_the_file}]]</h2>
+        <form class="file-drop" th:action="@{/secretary/import}" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".csv,.txt,text/csv" required>
+            <button type="submit" class="btn success"><svg class="icon"><use href="#i-upload"/></svg>[[#{t.import_patients}]]</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>
