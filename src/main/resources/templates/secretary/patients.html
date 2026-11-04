@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Patients', ~{::main})}">
+<body>
+<main>
+    <div class="page-head">
+        <div><h1>[[#{t.patients}]]</h1><p>[[#{t.open_a_file_to_see_or_edit_consultations_appointments_and_invoices}]]</p></div>
+        <a class="btn" th:href="@{/secretary/patients/new}"><svg class="icon"><use href="#i-plus"/></svg>[[#{t.new_patient}]]</a>
+    </div>
+    <div class="card table-wrap" data-paged>
+        <table class="list">
+            <thead><tr><th>[[#{t.ref}]]</th><th>[[#{t.name}]]</th><th>[[#{t.gender}]]</th><th>[[#{t.age}]]</th><th>[[#{t.phone}]]</th><th></th></tr></thead>
+            <tbody th:each="p : ${rows}" data-row>
+            <tr>
+                <td th:text="${p.ref}"></td>
+                <td><a th:href="@{/secretary/patients/{id}(id=${p.id})}" th:text="${p.fullName}"></a></td>
+                <td th:text="${p.gender == 'M' ? @tr.t('Male') : (p.gender == 'F' ? @tr.t('Female') : '-')}"></td>
+                <td th:text="${p.age}"></td>
+                <td th:text="${p.contactNumber}"></td>
+                <td class="actions">
+                    <a class="btn small ghost" th:href="@{/secretary/patients/{id}(id=${p.id})}">[[#{t.view_update}]]</a>
+                    <form th:action="@{/secretary/patients/{id}/delete(id=${p.id})}" method="post"
+                          th:attr="data-confirm=#{t.delete_this_patient_and_all_linked_records}">
+                        <button class="btn small danger" type="submit">[[#{t.delete}]]</button></form>
+                </td>
+            </tr>
+            </tbody>
+            <tbody th:if="${#lists.isEmpty(rows)}"><tr><td colspan="6" class="empty-note">[[#{t.no_patient_found}]]</td></tr></tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

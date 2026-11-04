@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(${form.id == null ? 'New patient' : 'Update patient'}, ~{::main})}">
+<body>
+<main>
+    <div th:replace="~{fragments/parts :: formbar('patientForm', '/secretary/patients', 'Patients', '/secretary/patients', ${form.id == null ? 'New patient' : 'Update patient'})}"></div>
+
+    <h1 class="page-title">[[#{h.patient}]] <b>[[#{h.file}]]</b></h1>
+    <h2 class="subtitle" th:text="${@tr.t(form.id == null ? 'New Patient' : 'Update Patient')}">New Patient</h2>
+
+    <form id="patientForm" class="doc-form" th:action="@{/secretary/patients}" th:object="${form}" method="post">
+        <div th:replace="~{fragments/parts :: errors}"></div>
+        <input type="hidden" th:field="*{id}">
+
+        <div class="kv-row">
+            <table class="kv">
+                <tr th:if="${ref != null}"><td class="k">[[#{t.patient_ref}]]</td><td><input class="ro" readonly th:value="${ref}"></td></tr>
+                <tr><td class="k">[[#{t.first_name}]] <i>*</i></td><td><input th:field="*{firstName}" required maxlength="100"></td></tr>
+                <tr><td class="k">[[#{t.last_name}]] <i>*</i></td><td><input th:field="*{lastName}" required maxlength="100"></td></tr>
+            </table>
+            <table class="kv">
+                <tr><td class="k">[[#{t.gender}]] <i>*</i></td><td>
+                    <select th:field="*{gender}" required>
+                        <option value="">[[#{t.select_gender}]]</option>
+                        <option value="M">[[#{t.male}]]</option>
+                        <option value="F">[[#{t.female}]]</option>
+                    </select></td></tr>
+                <tr><td class="k">[[#{t.date_of_birth}]] <i>*</i></td><td><input type="date" th:field="*{dateOfBirth}" required></td></tr>
+                <tr><td class="k">[[#{t.phone}]] <i>*</i></td><td><input th:field="*{contactNumber}" required maxlength="50"></td></tr>
+            </table>
+        </div>
+
+        <table class="kv note-row">
+            <tr><td class="k" style="width:120px">[[#{t.note}]]</td><td><textarea th:field="*{notes}" rows="2" maxlength="2000" th:placeholder="#{t.optional}"></textarea></td></tr>
+        </table>
+
+        <!-- ================= CONSULTATIONS ================= -->
+        <section class="lines">
+            <div class="lines-head">
+                <h3>[[#{t.consultations}]] <span class="badge" data-count="consultations">0</span></h3>
+                <span class="hint">[[#{t.one_line_per_visit}]]</span>
+            </div>
+            <div class="table-scroll">
+                <table class="grid" data-grid="consultations" style="min-width:620px">
+                    <thead><tr>
+                        <th>[[#{t.line}]]</th><th>[[#{t.date}]] <i>*</i></th><th>[[#{t.reason}]] <i>*</i></th><th>[[#{t.diagnosis}]]</th><th>[[#{t.treatment}]]</th>
+                        <th><button type="button" class="btn-plus" data-add th:title="#{t.add_a_line}">+</button></th>
+                    </tr></thead>
+                    <tbody>
+                    <tr class="empty"><td colspan="6">[[#{t.no_consultation_yet_click_to_add_one}]]</td></tr>
+                    <tr class="line" th:each="l, st : *{consultations}">
+                        <td class="ln-cell"><span class="ln" th:text="${st.count}">1</span>
+                            <input type="hidden" th:name="|consultations[${st.index}].id|" th:value="${l.id}">
+                            <input type="hidden" th:name="|consultations[${st.index}].symptoms|" th:value="${l.symptoms}">
+                            <input type="hidden" th:name="|consultations[${st.index}].notes|" th:value="${l.notes}">
+                            <input type="hidden" th:name="|consultations[${st.index}].nextVisit|" th:value="${l.nextVisit}"></td>
+                        <td><input type="date" required th:name="|consultations[${st.index}].consultationDate|" th:value="${l.consultationDate}"></td>
+                        <td><input required maxlength="255" th:name="|consultations[${st.index}].reason|" th:value="${l.reason}"></td>
+                        <td><textarea maxlength="1000" th:name="|consultations[${st.index}].diagnosis|" th:text="${l.diagnosis}"></textarea></td>
+                        <td><textarea maxlength="1000" th:name="|consultations[${st.index}].treatment|" th:text="${l.treatment}"></textarea></td>
+                        <td class="act"><button type="button" class="btn-minus" data-remove th:title="#{t.remove_this_line}">&minus;</button></td>
+                    </tr>
+                    </tbody>
+                    <template>
+                        <tr class="line">
+                            <td class="ln-cell"><span class="ln">1</span><input type="hidden" name="consultations[0].id"></td>
+                            <td><input type="date" required name="consultations[0].consultationDate" th:value="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}"></td>
+                            <td><input required maxlength="255" name="consultations[0].reason"></td>
+                            <td><textarea maxlength="1000" name="consultations[0].diagnosis"></textarea></td>
+                            <td><textarea maxlength="1000" name="consultations[0].treatment"></textarea></td>
+                            <td class="act"><button type="button" class="btn-minus" data-remove th:title="#{t.remove_this_line}">&minus;</button></td>
+                        </tr>
+                    </template>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================= APPOINTMENTS ================= -->
+        <section class="lines">
+            <div class="lines-head">
+                <h3>[[#{t.appointments}]] <span class="badge" data-count="appointments">0</span></h3>
+                <span class="hint">[[#{t.old_and_new_appointments_of_this_patient}]]</span>
+            </div>
+            <div class="table-scroll">
+                <table class="grid" data-grid="appointments" style="min-width:560px">
+                    <thead><tr>
+                        <th>[[#{t.line}]]</th><th>[[#{t.date_time}]] <i>*</i></th><th>[[#{t.reason}]]</th><th>[[#{t.status}]]</th>
+                        <th><button type="button" class="btn-plus" data-add th:title="#{t.add_a_line}">+</button></th>
+                    </tr></thead>
+                    <tbody>
+                    <tr class="empty"><td colspan="5">[[#{t.no_appointment_yet_click_to_add_one}]]</td></tr>
+                    <tr class="line" th:each="l, st : *{appointments}">
+                        <td class="ln-cell"><span class="ln" th:text="${st.count}">1</span>
+                            <input type="hidden" th:name="|appointments[${st.index}].id|" th:value="${l.id}">
+                            <input type="hidden" th:name="|appointments[${st.index}].fee|" th:value="${l.fee}"></td>
+                        <td><input type="datetime-local" required th:name="|appointments[${st.index}].appointmentDateTime|" th:value="${l.appointmentDateTime}"></td>
+                        <td><input maxlength="255" th:name="|appointments[${st.index}].reason|" th:value="${l.reason}"></td>
+                        <td><select th:name="|appointments[${st.index}].status|">
+                            <option th:each="s : ${appointmentStatuses}" th:value="${s}" th:text="${@tr.t(s.label)}" th:selected="${l.status == s}"></option>
+                        </select></td>
+                        <td class="act"><button type="button" class="btn-minus" data-remove th:title="#{t.remove_this_line}">&minus;</button></td>
+                    </tr>
+                    </tbody>
+                    <template>
+                        <tr class="line">
+                            <td class="ln-cell"><span class="ln">1</span><input type="hidden" name="appointments[0].id"></td>
+                            <td><input type="datetime-local" required name="appointments[0].appointmentDateTime"></td>
+                            <td><input maxlength="255" name="appointments[0].reason"></td>
+                            <td><select name="appointments[0].status">
+                                <option th:each="s : ${appointmentStatuses}" th:value="${s}" th:text="${@tr.t(s.label)}"></option>
+                            </select></td>
+                            <td class="act"><button type="button" class="btn-minus" data-remove th:title="#{t.remove_this_line}">&minus;</button></td>
+                        </tr>
+                    </template>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================= INVOICES ================= -->
+        <section class="lines">
+            <div class="lines-head">
+                <h3>[[#{t.invoices}]] <span class="badge" data-count="invoices">0</span></h3>
+                <span class="hint" th:text="#{t.amounts_in} + ' ' + ${currency}">Amounts</span>
+            </div>
+            <div class="table-scroll">
+                <table class="grid" data-grid="invoices" style="min-width:760px">
+                    <thead><tr>
+                        <th>[[#{t.line}]]</th><th>[[#{t.date}]] <i>*</i></th><th>[[#{t.description}]] <i>*</i></th><th>[[#{t.unit_price}]] <i>*</i></th><th>[[#{t.qty}]] <i>*</i></th>
+                        <th>[[#{t.total}]]</th><th>[[#{t.status}]]</th>
+                        <th><button type="button" class="btn-plus" data-add th:title="#{t.add_a_line}">+</button></th>
+                    </tr></thead>
+                    <tbody>
+                    <tr class="empty"><td colspan="8">[[#{t.no_invoice_yet_click_to_add_one}]]</td></tr>
+                    <tr class="line" th:each="l, st : *{invoices}">
+                        <td class="ln-cell"><span class="ln" th:text="${st.count}">1</span>
+                            <input type="hidden" th:name="|invoices[${st.index}].id|" th:value="${l.id}">
+                            <input type="hidden" class="vat" th:name="|invoices[${st.index}].vatRate|" th:value="${l.vatRate}">
+                            <input type="hidden" th:name="|invoices[${st.index}].paymentMethod|" th:value="${l.paymentMethod}"></td>
+                        <td><input type="date" required th:name="|invoices[${st.index}].invoiceDate|" th:value="${l.invoiceDate}"></td>
+                        <td><input required maxlength="255" th:name="|invoices[${st.index}].description|" th:value="${l.description}"></td>
+                        <td><input class="u-price" type="number" min="0" step="0.001" required th:name="|invoices[${st.index}].unitPrice|" th:value="${l.unitPrice}"></td>
+                        <td><input class="qty" type="number" min="1" step="1" required th:name="|invoices[${st.index}].quantity|" th:value="${l.quantity}" style="width:64px"></td>
+                        <td><input class="ro l-ttc" readonly tabindex="-1"></td>
+                        <td><select class="l-status" th:name="|invoices[${st.index}].status|">
+                            <option th:each="s : ${invoiceStatuses}" th:value="${s}" th:text="${@tr.t(s.label)}" th:selected="${l.status == s}"></option>
+                        </select></td>
+                        <td class="act"><button type="button" class="btn-minus" data-remove th:title="#{t.remove_this_line}">&minus;</button></td>
+                    </tr>
+                    </tbody>
+                    <template>
+                        <tr class="line">
+                            <td class="ln-cell"><span class="ln">1</span><input type="hidden" name="invoices[0].id"></td>
+                            <td><input type="date" required name="invoices[0].invoiceDate" th:value="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}"></td>
+                            <td><input required maxlength="255" name="invoices[0].description" th:placeholder="#{t.consultation_scaling_eye_exam}"></td>
+                            <td><input class="u-price" type="number" min="0" step="0.001" required name="invoices[0].unitPrice"></td>
+                            <td><input class="qty" type="number" min="1" step="1" required name="invoices[0].quantity" value="1" style="width:64px"></td>
+                            <td><input class="ro l-ttc" readonly tabindex="-1"></td>
+                            <td><select class="l-status" name="invoices[0].status">
+                                <option th:each="s : ${invoiceStatuses}" th:value="${s}" th:text="${@tr.t(s.label)}"></option>
+                            </select></td>
+                            <td class="act"><button type="button" class="btn-minus" data-remove th:title="#{t.remove_this_line}">&minus;</button></td>
+                        </tr>
+                    </template>
+                </table>
+            </div>
+
+            <div class="totals">
+                <div><label>[[#{t.total}]]</label><input class="ro" readonly data-total="ttc"></div>
+                <div><label>[[#{t.paid}]]</label><input class="ro" readonly data-total="paid"></div>
+                <div><label>[[#{t.balance_due}]]</label><input class="ro" readonly data-total="due"></div>
+            </div>
+        </section>
+
+        <p><button type="submit" class="btn success">&#10003; [[#{t.save_patient_file}]]</button>
+            <a class="btn ghost" th:href="@{/secretary/patients}">[[#{t.cancel}]]</a></p>
+    </form>
+
+    <div class="danger-zone" th:if="${form.id != null}">
+        <span><b>[[#{t.delete_this_patient}]]</b><br><span class="muted">[[#{t.removes_the_file_with_all_consultations_appointments_invoices_and_reports}]]</span></span>
+        <form th:action="@{/secretary/patients/{id}/delete(id=${form.id})}" method="post"
+              th:attr="data-confirm=#{t.delete_this_patient_and_all_linked_records_this_cannot_be_undone}">
+            <button type="submit" class="btn danger">[[#{t.delete_patient}]]</button>
+        </form>
+    </div>
+
+    <script th:src="@{/js/patient-form.js}"></script>
+</main>
+</body>
+</html>
