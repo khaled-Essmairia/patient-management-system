@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Backups', ~{::main})}">
+<body>
+<main>
+    <div class="page-head">
+        <div><h1>[[#{t.backups}]]</h1><p>[[#{t.a_copy_of_all_the_patient_data_is_saved_automatically_every_day}]]</p></div>
+        <form th:action="@{/secretary/backups/run}" method="post" th:if="${service.enabled}">
+            <button class="btn success" type="submit"><svg class="icon"><use href="#i-download"/></svg>[[#{t.back_up_now}]]</button></form>
+    </div>
+    <div class="alert err" th:if="${!service.enabled}">[[#{t.automatic_backup_is_switched_off_backup_enabled_false}]]</div>
+    <div class="alert err" th:if="${service.lastError != null}" th:text="${service.lastError}"></div>
+    <div class="card" style="margin-bottom:16px">
+        <div class="detail-grid">
+            <div><b>[[#{t.backup_folder}]]</b><span class="mono" th:text="${service.dir}"></span></div>
+            <div><b>[[#{t.second_copy_folder}]]</b><span class="mono" th:text="${#strings.isEmpty(service.extraDir) ? '-' : service.extraDir}"></span></div>
+            <div><b>[[#{t.copies_kept}]]</b><span th:text="${service.keep}"></span></div>
+            <div><b>[[#{t.last_backup}]]</b><span th:text="${rows.isEmpty() ? '-' : @fmt.dateTime(rows[0].modified)}"></span></div>
+        </div>
+    </div>
+    <div class="hint-box">[[#{t.keep_a_second_copy_on_a_usb_drive_or_in_a_synchronised_folder_a_backup_stored_only_on_the_same_computer_is_lost_if_the_computer_is_lost_set_the_folder_with_backup_extra_dir}]]</div>
+    <div class="card table-wrap" data-paged>
+        <table class="list">
+            <thead><tr><th>[[#{t.file}]]</th><th>[[#{t.date}]]</th><th class="num">[[#{t.size_kb}]]</th><th></th></tr></thead>
+            <tbody th:each="f : ${rows}" data-row>
+            <tr>
+                <td class="mono" th:text="${f.name}"></td>
+                <td th:text="${@fmt.dateTime(f.modified)}"></td>
+                <td class="num" th:text="${#numbers.formatDecimal(f.size / 1024.0, 1, 1)}"></td>
+                <td class="actions"><a class="btn small ghost" th:href="@{/secretary/backups/download/{n}(n=${f.name})}">[[#{t.download}]]</a></td>
+            </tr>
+            </tbody>
+            <tbody th:if="${#lists.isEmpty(rows)}"><tr><td colspan="4" class="empty-note">[[#{t.no_backup_yet}]]</td></tr></tbody>
+        </table>
+    </div>
+    <div class="card" style="margin-top:16px">
+        <h2>[[#{t.how_to_restore_a_backup}]]</h2>
+        <p>[[#{t.unzip_the_file_then_run_it_in_mysql_the_existing_tables_are_replaced_by_the_saved_ones}]]</p>
+        <p class="mono">mysql -u root -p clinic_db &lt; clinic_backup_YYYY-MM-DD_HHMMSS.sql</p>
+    </div>
+</main>
+</body>
+</html>
