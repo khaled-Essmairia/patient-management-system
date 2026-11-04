@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Appointments', ~{::main})}">
+<body>
+<main>
+    <div class="page-head">
+        <div><h1>[[#{t.appointments}]]</h1><p>[[#{t.all_appointments_past_and_upcoming}]]</p></div>
+        <a class="btn" th:href="@{/secretary/appointments/new}"><svg class="icon"><use href="#i-plus"/></svg>[[#{t.new_appointment}]]</a>
+    </div>
+    <div class="hint-box" th:if="${!smsReady}">[[#{t.sms_reminders_are_switched_off_set_the_sms_properties_to_send_a_reminder_to_the_patients_automatically}]]</div>
+    <div class="hint-box" th:if="${smsReady}" th:text="#{t.sms_reminders_on(${smsHours})}"></div>
+    <form class="toolbar" method="get" th:action="@{/secretary/appointments}">
+        <select name="status"><option value="">[[#{t.all_statuses}]]</option>
+            <option th:each="s : ${statuses}" th:value="${s}" th:text="${@tr.t(s.label)}" th:selected="${status == s}"></option></select>
+        <button class="btn ghost" type="submit">[[#{t.filter}]]</button>
+    </form>
+    <div class="card table-wrap" data-paged>
+        <table class="list">
+            <thead><tr><th>[[#{t.date_time}]]</th><th>[[#{t.patient}]]</th><th>[[#{t.reason}]]</th><th class="num" th:text="#{t.fee} + ' (' + ${currency} + ')'">Fee</th><th>[[#{t.status}]]</th><th></th></tr></thead>
+            <tbody th:each="a : ${rows}" data-row>
+            <tr>
+                <td th:text="${@fmt.dateTime(a.appointmentDateTime)}"></td>
+                <td><a th:href="@{/secretary/patients/{id}(id=${a.patient.id})}" th:text="${a.patient.fullName}"></a></td>
+                <td th:text="${a.reason ?: '-'}"></td>
+                <td class="num" th:text="${@fmt.money(a.fee)}"></td>
+                <td><span class="badge" th:classappend="'s-' + ${a.status.name().toLowerCase()}" th:text="${@tr.t(a.status.label)}"></span>
+                    <span class="badge" th:if="${a.reminderSentAt != null}">SMS &#10003;</span></td>
+                <td class="actions">
+                    <button type="button" class="btn small ghost" data-toggle-detail>[[#{t.view}]]</button>
+                    <form th:if="${smsReady and a.status.name() == 'SCHEDULED'}" th:action="@{/secretary/appointments/{id}/remind(id=${a.id})}" method="post">
+                        <button class="btn small ghost" type="submit">[[#{t.send_reminder}]]</button></form>
+                    <a class="btn small ghost" th:href="@{/secretary/appointments/{id}/edit(id=${a.id})}">[[#{t.update}]]</a>
+                    <form th:action="@{/secretary/appointments/{id}/delete(id=${a.id})}" method="post" th:attr="data-confirm=#{t.delete_this_appointment_and_its_report}">
+                        <button class="btn small danger" type="submit">[[#{t.delete}]]</button></form>
+                </td>
+            </tr>
+            <tr class="detail" hidden><td colspan="6"><div class="detail-grid">
+                <div><b>[[#{t.patient}]]</b><span th:text="${a.patient.fullName + ' (' + a.patient.ref + ')'}"></span></div>
+                <div><b>[[#{t.phone}]]</b><span th:text="${a.patient.contactNumber}"></span></div>
+                <div><b>[[#{t.booked_on}]]</b><span th:text="${@fmt.dateTime(a.createdAt)}"></span></div>
+                <div><b>[[#{t.reason}]]</b><span th:text="${a.reason ?: '-'}"></span></div>
+                <div><b>[[#{t.sms_reminder}]]</b><span th:text="${a.reminderSentAt != null ? @fmt.dateTime(a.reminderSentAt) : '-'}"></span></div>
+            </div></td></tr>
+            </tbody>
+            <tbody th:if="${#lists.isEmpty(rows)}"><tr><td colspan="6" class="empty-note">[[#{t.no_appointment_found}]]</td></tr></tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

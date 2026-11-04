@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(${form.id == null ? 'New appointment' : 'Update appointment'}, ~{::main})}">
+<body>
+<main>
+    <div th:replace="~{fragments/parts :: formbar('apptForm', '/secretary/appointments', 'Appointments', '/secretary/appointments', ${form.id == null ? 'New appointment' : 'Update appointment'})}"></div>
+    <h1 class="page-title">[[#{t.appointment}]]</h1>
+    <h2 class="subtitle" th:text="${@tr.t(form.id == null ? 'New Appointment' : 'Update Appointment')}"></h2>
+    <form id="apptForm" class="doc-form" th:action="@{/secretary/appointments}" th:object="${form}" method="post">
+        <div th:replace="~{fragments/parts :: errors}"></div>
+        <input type="hidden" th:field="*{id}">
+        <div class="kv-row">
+            <table class="kv">
+                <tr><td class="k">[[#{t.patient}]] <i>*</i></td><td><select th:field="*{patientId}" required>
+                    <option value="">[[#{t.select_patient}]]</option>
+                    <option th:each="p : ${patients}" th:value="${p.id}" th:text="${p.fullName + ' (' + p.ref + ')'}"></option></select></td></tr>
+                <tr><td class="k">[[#{t.date_time}]] <i>*</i></td><td><input type="datetime-local" th:field="*{appointmentDateTime}" required></td></tr>
+            </table>
+            <table class="kv">
+                <tr><td class="k">[[#{t.reason}]]</td><td><input th:field="*{reason}" maxlength="255"></td></tr>
+                <tr><td class="k" th:text="#{t.fee} + ' (' + ${currency} + ')'">Fee</td><td><input type="number" min="0" step="0.001" th:field="*{fee}" th:placeholder="#{t.doctor_s_default_fee}"></td></tr>
+                <tr><td class="k">[[#{t.status}]]</td><td><select th:field="*{status}">
+                    <option th:each="s : ${statuses}" th:value="${s}" th:text="${@tr.t(s.label)}"></option></select></td></tr>
+            </table>
+        </div>
+        <button type="submit" class="btn success">&#10003; [[#{t.save}]]</button>
+        <a class="btn ghost" th:href="@{/secretary/appointments}">[[#{t.cancel}]]</a>
+    </form>
+</main>
+</body>
+</html>
