@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Dashboard', ~{::main})}">
+<body>
+<main>
+    <div class="page-head">
+        <div><h1 th:text="#{t.hello} + ', ' + ${doctor.displayName}">Hello</h1><p>[[#{t.here_is_your_day_at_a_glance}]]</p></div>
+        <a class="btn" th:href="@{/doctor/appointments}">[[#{t.all_my_appointments}]]</a>
+    </div>
+    <div class="stats">
+        <div class="stat green"><div class="v" th:text="${#lists.size(todayAppointments)}">0</div><div class="l">[[#{t.today}]]</div></div>
+        <div class="stat"><div class="v" th:text="${upcomingCount}">0</div><div class="l">[[#{t.upcoming}]]</div></div>
+        <div class="stat violet"><div class="v" th:text="${completedCount}">0</div><div class="l">[[#{t.completed}]]</div></div>
+        <div class="stat orange"><div class="v" th:text="${reportCount}">0</div><div class="l">[[#{t.reports_written}]]</div></div>
+    </div>
+    <div class="card">
+        <h2>[[#{t.today_s_appointments}]]</h2>
+        <div class="table-wrap">
+            <table class="list">
+                <thead><tr><th>[[#{t.time}]]</th><th>[[#{t.patient}]]</th><th>[[#{t.age}]]</th><th>[[#{t.reason}]]</th><th>[[#{t.status}]]</th><th></th></tr></thead>
+                <tbody>
+                <tr th:each="a : ${todayAppointments}">
+                    <td th:text="${@fmt.time(a.appointmentDateTime)}"></td>
+                    <td th:text="${a.patient.fullName}"></td>
+                    <td th:text="${a.patient.age}"></td>
+                    <td th:text="${a.reason ?: '-'}"></td>
+                    <td><span class="badge" th:classappend="'s-' + ${a.status.name().toLowerCase()}" th:text="${@tr.t(a.status.label)}"></span></td>
+                    <td class="actions"><a th:if="${a.status.name() != 'CANCELLED'}" class="btn small" th:href="@{/doctor/appointments/{id}/report(id=${a.id})}"
+                           th:text="${@tr.t(a.status.name() == 'COMPLETED' ? 'Edit report' : 'Write report')}">Write report</a></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(todayAppointments)}"><td colspan="6" class="empty-note">[[#{t.no_appointment_today}]]</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

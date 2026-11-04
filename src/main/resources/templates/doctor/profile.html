@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('My profile', ~{::main})}">
+<body>
+<main>
+    <div class="page-head"><div><h1>[[#{t.my_profile}]]</h1><p>[[#{t.to_change_these_details_or_your_password_ask_the_secretary}]]</p></div></div>
+    <div class="card">
+        <div class="detail-grid">
+            <div><b>[[#{t.name}]]</b><span th:text="${doctor.displayName}"></span></div>
+            <div><b>[[#{t.specialty}]]</b><span th:text="${@tr.t(doctor.doctorType)}"></span></div>
+            <div><b>[[#{t.qualification}]]</b><span th:text="${doctor.qualification}"></span></div>
+            <div><b>[[#{t.phone}]]</b><span th:text="${doctor.contactNumber ?: '-'}"></span></div>
+            <div><b>[[#{t.email}]]</b><span th:text="${doctor.email ?: '-'}"></span></div>
+            <div><b>[[#{t.username}]]</b><span th:text="${doctor.user.username}"></span></div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

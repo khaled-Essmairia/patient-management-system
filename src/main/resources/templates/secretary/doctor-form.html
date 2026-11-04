@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Doctor profile', ~{::main})}">
+<body>
+<main>
+    <div th:replace="~{fragments/parts :: formbar('docForm', '/secretary', 'Home', '/secretary', 'Doctor profile')}"></div>
+    <h1 class="page-title">[[#{h.doctor}]] <b>[[#{h.profile}]]</b></h1>
+    <h2 class="subtitle" th:text="#{t.the_doctor_of_this_cabinet_and_his_sign_in_account}"></h2>
+    <form id="docForm" class="doc-form" th:action="@{/secretary/doctors}" th:object="${form}" method="post">
+        <div th:replace="~{fragments/parts :: errors}"></div>
+        <input type="hidden" th:field="*{id}">
+        <div class="kv-row">
+            <table class="kv">
+                <tr><td class="k">[[#{t.first_name}]] <i>*</i></td><td><input th:field="*{firstName}" required></td></tr>
+                <tr><td class="k">[[#{t.last_name}]] <i>*</i></td><td><input th:field="*{lastName}" required></td></tr>
+                <tr><td class="k">[[#{t.gender}]] <i>*</i></td><td><select th:field="*{gender}" required>
+                    <option value="">[[#{t.select_gender}]]</option><option value="M">[[#{t.male}]]</option><option value="F">[[#{t.female}]]</option></select></td></tr>
+                <tr><td class="k">[[#{t.phone}]]</td><td><input th:field="*{contactNumber}"></td></tr>
+                <tr><td class="k">[[#{t.email}]]</td><td><input type="email" th:field="*{email}"></td></tr>
+            </table>
+            <table class="kv">
+                <tr><td class="k">[[#{t.specialty}]] <i>*</i></td><td><select th:field="*{doctorType}" required>
+                    <option value="">[[#{t.select_specialty}]]</option>
+                    <option th:each="s : ${specialties}" th:value="${s}" th:text="${@tr.t(s)}"></option></select></td></tr>
+                <tr><td class="k">[[#{t.qualification}]] <i>*</i></td><td><input th:field="*{qualification}" required></td></tr>
+                <tr><td class="k" th:text="#{t.consultation_fee} + ' (' + ${currency} + ') *'">Fee</td><td><input type="number" min="0" step="0.001" th:field="*{consultationFee}" required></td></tr>
+            </table>
+            <table class="kv">
+                <tr><td class="k">[[#{t.username}]] <i>*</i></td><td><input th:field="*{username}" required th:readonly="${form.id != null}" th:classappend="${form.id != null} ? 'ro'"></td></tr>
+                <tr><td class="k"><span th:text="${form.id == null ? #messages.msg('t.password') + ' *' : #messages.msg('t.new_password')}">Password</span></td>
+                    <td><input type="password" th:field="*{password}" autocomplete="new-password" th:required="${form.id == null}"
+                               th:placeholder="${form.id == null ? '' : @tr.t('Leave empty to keep the current one')}"></td></tr>
+            </table>
+        </div>
+        <button type="submit" class="btn success">&#10003; [[#{t.save}]]</button>
+        <a class="btn ghost" th:href="@{/secretary}">[[#{t.cancel}]]</a>
+    </form>
+</main>
+</body>
+</html>
