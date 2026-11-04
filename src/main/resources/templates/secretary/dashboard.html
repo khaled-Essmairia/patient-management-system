@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Dashboard', ~{::main})}">
+<body>
+<main>
+    <div class="page-head">
+        <div><h1>[[#{t.dashboard}]]</h1><p th:text="${@fmt.date(today)}">Today</p></div>
+        <a class="btn" th:href="@{/secretary/patients/new}"><svg class="icon"><use href="#i-plus"/></svg>[[#{t.new_patient}]]</a>
+    </div>
+
+    <div class="stats">
+        <div class="stat"><div class="v" th:text="${patientCount}">0</div><div class="l">[[#{t.patients}]]</div></div>
+        <div class="stat green"><div class="v" th:text="${#lists.size(todayAppointments)}">0</div><div class="l">[[#{t.appointments_today}]]</div></div>
+        <div class="stat orange"><div class="v" th:text="${@fmt.money(unpaidTotal)} + ' ' + ${currency}">0</div><div class="l">[[#{t.unpaid_invoices}]]</div></div>
+        <div class="stat green"><div class="v" th:text="${@fmt.money(monthRevenue)} + ' ' + ${currency}">0</div><div class="l">[[#{t.paid_this_month}]]</div></div>
+        <div class="stat"><div class="v" th:text="${avgRating}">-</div><div class="l">[[#{t.average_feedback}]]</div></div>
+    </div>
+
+    <div class="two-col">
+        <div class="card">
+            <h2>[[#{t.today_s_appointments}]]</h2>
+            <div class="table-wrap">
+                <table class="list">
+                    <thead><tr><th>[[#{t.time}]]</th><th>[[#{t.patient}]]</th><th>[[#{t.reason}]]</th><th>[[#{t.status}]]</th></tr></thead>
+                    <tbody>
+                    <tr th:each="a : ${todayAppointments}">
+                        <td th:text="${@fmt.time(a.appointmentDateTime)}"></td>
+                        <td><a th:href="@{/secretary/patients/{id}(id=${a.patient.id})}" th:text="${a.patient.fullName}"></a></td>
+                        <td th:text="${a.reason}"></td>
+                        <td><span class="badge" th:classappend="'s-' + ${a.status.name().toLowerCase()}" th:text="${@tr.t(a.status.label)}"></span></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(todayAppointments)}"><td colspan="4" class="empty-note">[[#{t.no_appointment_today}]]</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card">
+            <h2>[[#{t.recently_registered}]]</h2>
+            <div th:each="p : ${recentPatients}" style="padding:8px 0;border-bottom:1px solid #eef2f7">
+                <a th:href="@{/secretary/patients/{id}(id=${p.id})}" th:text="${p.fullName}"></a>
+                <div class="muted" th:text="${p.ref + ' · ' + @fmt.date(p.createdAt.toLocalDate())}"></div>
+            </div>
+            <div class="empty-note" th:if="${#lists.isEmpty(recentPatients)}">[[#{t.no_patient_yet}]]</div>
+        </div>
+    </div>
+</main>
+</body>
+</html>
