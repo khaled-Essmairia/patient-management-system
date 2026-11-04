@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(${form.id == null ? 'New prescription' : 'Update prescription'}, ~{::main})}">
+<body>
+<main>
+    <div th:replace="~{fragments/parts :: formbar('rxForm', '/prescriptions', 'Prescriptions', '/prescriptions', ${form.id == null ? 'New prescription' : 'Update prescription'})}"></div>
+    <h1 class="page-title">[[#{t.prescription}]]</h1>
+    <form id="rxForm" class="doc-form" th:action="@{/prescriptions}" th:object="${form}" method="post">
+        <div th:replace="~{fragments/parts :: errors}"></div>
+        <input type="hidden" th:field="*{id}">
+        <div class="kv-row">
+            <table class="kv">
+                <tr><td class="k">[[#{t.patient}]] <i>*</i></td><td><select th:field="*{patientId}" required>
+                    <option value="">[[#{t.select_patient}]]</option>
+                    <option th:each="p : ${patients}" th:value="${p.id}" th:text="${p.fullName + ' (' + p.ref + ')'}"></option></select></td></tr>
+                <tr><td class="k">[[#{t.date}]] <i>*</i></td><td><input type="date" th:field="*{prescriptionDate}" required></td></tr>
+            </table>
+        </div>
+        <table class="kv note-row">
+            <tr><td class="k" style="width:140px">[[#{t.medicines}]] <i>*</i></td><td>
+                <textarea th:field="*{content}" rows="9" maxlength="3000" required th:placeholder="${@tr.t('One medicine per line, with the dosage. Example: Amoxicillin 1 g - 1 tablet morning and evening for 7 days')}"></textarea>
+                <small class="muted">[[#{t.one_medicine_per_line_with_the_dosage}]]</small></td></tr>
+            <tr><td class="k">[[#{t.advice}]]</td><td><textarea th:field="*{advice}" rows="3" maxlength="1000"></textarea></td></tr>
+        </table>
+        <button type="submit" class="btn success">&#10003; [[#{t.save}]]</button>
+        <button type="submit" name="print" value="1" class="btn">[[#{t.save_and_print}]]</button>
+        <a class="btn ghost" th:href="@{/prescriptions}">[[#{t.cancel}]]</a>
+    </form>
+</main>
+</body>
+</html>

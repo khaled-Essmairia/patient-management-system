@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html th:lang="${#locale.language}" th:dir="${#locale.language == 'ar' ? 'rtl' : 'ltr'}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${p.reference} + ' · ' + ${p.patient.fullName}">Prescription</title>
+    <link rel="stylesheet" th:href="@{/css/print.css}">
+    <style>@page { size: A5 portrait; margin: 10mm; }</style>
+</head>
+<body>
+<div class="noprint bar">
+    <button type="button" class="btn" onclick="window.print()">[[#{t.print}]]</button>
+    <a class="btn ghost" th:href="@{/prescriptions}">[[#{t.back}]]</a>
+</div>
+<div class="sheet rx">
+    <header class="letterhead">
+        <div class="who">
+            <h1 th:text="${doctor != null ? doctor.displayName : @clinic.name}">Dr. Name</h1>
+            <div th:if="${doctor != null}" th:text="${@tr.t(doctor.doctorType)}"></div>
+            <div th:if="${doctor != null}" th:text="${doctor.qualification}"></div>
+        </div>
+        <div class="where">
+            <b th:text="${@clinic.name}">Clinic</b>
+            <div th:if="${!#strings.isEmpty(@clinic.address)}" th:text="${@clinic.address}"></div>
+            <div th:if="${!#strings.isEmpty(@clinic.phone)}">[[#{t.tel}]] <span class="ltr" th:text="${@clinic.phone}"></span></div>
+            <div th:if="${#strings.isEmpty(@clinic.phone) and doctor != null and !#strings.isEmpty(doctor.contactNumber)}">[[#{t.tel}]] <span class="ltr" th:text="${doctor.contactNumber}"></span></div>
+        </div>
+    </header>
+    <div class="meta">
+        <div><b>[[#{t.patient}]]</b> <span th:text="${p.patient.fullName}"></span><span th:if="${p.patient.age != null}"> (<span th:text="${p.patient.age}"></span> [[#{t.years}]])</span></div>
+        <div><b>[[#{t.date}]]</b> <span th:text="${@fmt.date(p.prescriptionDate)}"></span></div>
+    </div>
+    <h2 class="title">[[#{t.prescription}]]</h2>
+    <ol class="meds"><li th:each="l : ${p.lines}" th:text="${l}"></li></ol>
+    <div class="advice" th:if="${p.advice != null}"><b>[[#{t.advice}]]</b><div th:text="${p.advice}" style="white-space:pre-line"></div></div>
+    <footer class="sign">
+        <div class="stamp">[[#{t.doctor_s_signature_and_stamp}]]</div>
+        <div class="foot" th:if="${!#strings.isEmpty(@clinic.footer)}" th:text="${@clinic.footer}"></div>
+    </footer>
+</div>
+</body>
+</html>

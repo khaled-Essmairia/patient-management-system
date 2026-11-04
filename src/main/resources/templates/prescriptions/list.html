@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Prescriptions', ~{::main})}">
+<body>
+<main>
+    <div class="page-head">
+        <div><h1>[[#{t.prescriptions}]]</h1><p>[[#{t.prescriptions_written_for_the_patients_ready_to_print}]]</p></div>
+        <a class="btn" th:href="@{/prescriptions/new}"><svg class="icon"><use href="#i-plus"/></svg>[[#{t.new_prescription}]]</a>
+    </div>
+    <div class="card table-wrap" data-paged>
+        <table class="list">
+            <thead><tr><th>[[#{t.ref}]]</th><th>[[#{t.date}]]</th><th>[[#{t.patient}]]</th><th>[[#{t.medicines}]]</th><th></th></tr></thead>
+            <tbody th:each="p : ${rows}" data-row>
+            <tr>
+                <td th:text="${p.reference}"></td>
+                <td th:text="${@fmt.date(p.prescriptionDate)}"></td>
+                <td th:text="${p.patient.fullName}"></td>
+                <td th:text="${#strings.abbreviate(p.content, 70)}"></td>
+                <td class="actions">
+                    <a class="btn small" th:href="@{/prescriptions/{id}/print(id=${p.id})}" target="_blank">[[#{t.print}]]</a>
+                    <button type="button" class="btn small ghost" data-toggle-detail>[[#{t.view}]]</button>
+                    <a class="btn small ghost" th:href="@{/prescriptions/{id}/edit(id=${p.id})}">[[#{t.update}]]</a>
+                    <form th:action="@{/prescriptions/{id}/delete(id=${p.id})}" method="post" th:attr="data-confirm=${@tr.t('Delete this prescription?')}">
+                        <button class="btn small danger" type="submit">[[#{t.delete}]]</button></form>
+                </td>
+            </tr>
+            <tr class="detail" hidden><td colspan="5"><div class="detail-grid">
+                <div><b>[[#{t.medicines}]]</b><span style="white-space:pre-line" th:text="${p.content}"></span></div>
+                <div><b>[[#{t.advice}]]</b><span style="white-space:pre-line" th:text="${p.advice ?: '-'}"></span></div>
+            </div></td></tr>
+            </tbody>
+            <tbody th:if="${#lists.isEmpty(rows)}"><tr><td colspan="5" class="empty-note">[[#{t.no_prescription_found}]]</td></tr></tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>
