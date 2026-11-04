@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Consultations', ~{::main})}">
+<body>
+<main>
+    <div class="page-head">
+        <div><h1>[[#{t.consultations}]]</h1><p>[[#{t.every_consultation_recorded_newest_first}]]</p></div>
+        <a class="btn" th:href="@{/secretary/consultations/new}"><svg class="icon"><use href="#i-plus"/></svg>[[#{t.new_consultation}]]</a>
+    </div>
+    <div class="card table-wrap" data-paged>
+        <table class="list">
+            <thead><tr><th>[[#{t.date}]]</th><th>[[#{t.patient}]]</th><th>[[#{t.reason}]]</th><th>[[#{t.diagnosis}]]</th><th></th></tr></thead>
+            <tbody th:each="c : ${rows}" data-row>
+            <tr>
+                <td th:text="${@fmt.date(c.consultationDate)}"></td>
+                <td><a th:href="@{/secretary/patients/{id}(id=${c.patient.id})}" th:text="${c.patient.fullName}"></a></td>
+                <td th:text="${c.reason}"></td>
+                <td th:text="${c.diagnosis ?: '-'}"></td>
+                <td class="actions">
+                    <button type="button" class="btn small ghost" data-toggle-detail>[[#{t.view}]]</button>
+                    <a class="btn small ghost" th:href="@{/prescriptions/new(consultationId=${c.id})}">[[#{t.prescription}]]</a>
+                    <a class="btn small ghost" th:href="@{/secretary/consultations/{id}/edit(id=${c.id})}">[[#{t.update}]]</a>
+                    <form th:action="@{/secretary/consultations/{id}/delete(id=${c.id})}" method="post" th:attr="data-confirm=#{t.delete_this_consultation}">
+                        <button class="btn small danger" type="submit">[[#{t.delete}]]</button></form>
+                </td>
+            </tr>
+            <tr class="detail" hidden><td colspan="5"><div class="detail-grid">
+                <div><b>[[#{t.symptoms}]]</b><span th:text="${c.symptoms ?: '-'}"></span></div>
+                <div><b>[[#{t.diagnosis}]]</b><span th:text="${c.diagnosis ?: '-'}"></span></div>
+                <div><b>[[#{t.treatment}]]</b><span th:text="${c.treatment ?: '-'}"></span></div>
+                <div><b>[[#{t.notes}]]</b><span th:text="${c.notes ?: '-'}"></span></div>
+                <div><b>[[#{t.next_visit}]]</b><span th:text="${@fmt.date(c.nextVisit)}"></span></div>
+            </div></td></tr>
+            </tbody>
+            <tbody th:if="${#lists.isEmpty(rows)}"><tr><td colspan="5" class="empty-note">[[#{t.no_consultation_found}]]</td></tr></tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

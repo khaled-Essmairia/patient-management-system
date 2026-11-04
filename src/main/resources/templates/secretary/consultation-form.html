@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(${form.id == null ? 'New consultation' : 'Update consultation'}, ~{::main})}">
+<body>
+<main>
+    <div th:replace="~{fragments/parts :: formbar('consForm', '/secretary/consultations', 'Consultations', '/secretary/consultations', ${form.id == null ? 'New consultation' : 'Update consultation'})}"></div>
+    <h1 class="page-title">[[#{t.consultation}]]</h1>
+    <h2 class="subtitle" th:text="${@tr.t(form.id == null ? 'New Consultation' : 'Update Consultation')}"></h2>
+    <form id="consForm" class="doc-form" th:action="@{/secretary/consultations}" th:object="${form}" method="post">
+        <div th:replace="~{fragments/parts :: errors}"></div>
+        <input type="hidden" th:field="*{id}">
+        <div class="kv-row">
+            <table class="kv">
+                <tr><td class="k">[[#{t.patient}]] <i>*</i></td><td><select th:field="*{patientId}" required>
+                    <option value="">[[#{t.select_patient}]]</option>
+                    <option th:each="p : ${patients}" th:value="${p.id}" th:text="${p.fullName + ' (' + p.ref + ')'}"></option></select></td></tr>
+                <tr><td class="k">[[#{t.date}]] <i>*</i></td><td><input type="date" th:field="*{consultationDate}" required></td></tr>
+            </table>
+            <table class="kv">
+                <tr><td class="k">[[#{t.reason}]] <i>*</i></td><td><input th:field="*{reason}" required maxlength="255"></td></tr>
+                <tr><td class="k">[[#{t.next_visit}]]</td><td><input type="date" th:field="*{nextVisit}"></td></tr>
+            </table>
+        </div>
+        <table class="kv note-row">
+            <tr><td class="k" style="width:140px">[[#{t.symptoms}]]</td><td><textarea th:field="*{symptoms}" rows="2" maxlength="1000"></textarea></td></tr>
+            <tr><td class="k">[[#{t.diagnosis}]]</td><td><textarea th:field="*{diagnosis}" rows="2" maxlength="1000"></textarea></td></tr>
+            <tr><td class="k">[[#{t.treatment}]]</td><td><textarea th:field="*{treatment}" rows="2" maxlength="1000"></textarea></td></tr>
+            <tr><td class="k">[[#{t.notes}]]</td><td><textarea th:field="*{notes}" rows="3" maxlength="2000"></textarea></td></tr>
+        </table>
+        <button type="submit" class="btn success">&#10003; [[#{t.save}]]</button>
+        <a class="btn ghost" th:href="@{/secretary/consultations}">[[#{t.cancel}]]</a>
+    </form>
+</main>
+</body>
+</html>
