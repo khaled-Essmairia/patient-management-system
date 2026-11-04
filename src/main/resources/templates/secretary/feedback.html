@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Feedback', ~{::main})}">
+<body>
+<main>
+    <div class="page-head">
+        <div><h1>[[#{t.feedback}]]</h1><p>[[#{t.what_patients_say_about_their_visit_recorded_at_the_front_desk}]]</p></div>
+        <a class="btn" th:href="@{/secretary/feedback/new}"><svg class="icon"><use href="#i-plus"/></svg>[[#{t.add_feedback}]]</a>
+    </div>
+    <div class="card table-wrap" data-paged>
+        <table class="list">
+            <thead><tr><th>[[#{t.date}]]</th><th>[[#{t.patient}]]</th><th>[[#{t.rating}]]</th><th>[[#{t.comment}]]</th><th></th></tr></thead>
+            <tbody th:each="f : ${rows}" data-row>
+            <tr>
+                <td th:text="${@fmt.date(f.createdAt.toLocalDate())}"></td>
+                <td th:text="${f.patient.fullName}"></td>
+                <td><span class="stars" th:text="${#strings.repeat('★', f.rating) + #strings.repeat('☆', 5 - f.rating)}"></span></td>
+                <td th:text="${f.comment ?: '-'}"></td>
+                <td class="actions">
+                    <a class="btn small ghost" th:href="@{/secretary/feedback/{id}/edit(id=${f.id})}">[[#{t.update}]]</a>
+                    <form th:action="@{/secretary/feedback/{id}/delete(id=${f.id})}" method="post" th:attr="data-confirm=#{t.delete_this_feedback}">
+                        <button class="btn small danger" type="submit">[[#{t.delete}]]</button></form>
+                </td>
+            </tr>
+            </tbody>
+            <tbody th:if="${#lists.isEmpty(rows)}"><tr><td colspan="5" class="empty-note">[[#{t.no_feedback_yet}]]</td></tr></tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>
