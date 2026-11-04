@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Medical report', ~{::main})}">
+<body>
+<main>
+    <div th:replace="~{fragments/parts :: formbar('repForm', '/doctor/appointments', 'My appointments', '/doctor/appointments', 'Medical report')}"></div>
+    <h1 class="page-title">[[#{h.medical}]] <b>[[#{h.report}]]</b></h1>
+    <h2 class="subtitle" th:text="${appointment.patient.fullName} + ' - ' + ${@fmt.dateTime(appointment.appointmentDateTime)}"></h2>
+
+    <div class="two-col">
+        <form id="repForm" class="doc-form" th:action="@{/doctor/appointments/{id}/report(id=${appointment.id})}" th:object="${form}" method="post">
+            <div th:replace="~{fragments/parts :: errors}"></div>
+            <table class="kv note-row">
+                <tr><td class="k" style="width:150px">[[#{t.diagnosis}]] <i>*</i></td><td><textarea th:field="*{diagnosis}" rows="4" required maxlength="1000" autofocus></textarea></td></tr>
+                <tr><td class="k">[[#{t.medicine_prescribed}]]</td><td><textarea th:field="*{medicinePrescribed}" rows="4" maxlength="1000" th:placeholder="#{t.name_dose_duration}"></textarea></td></tr>
+                <tr><td class="k">[[#{t.comment}]]</td><td><textarea th:field="*{doctorComment}" rows="4" maxlength="2000" th:placeholder="#{t.advice_follow_up}"></textarea></td></tr>
+            </table>
+            <button type="submit" class="btn success">&#10003; [[#{t.save_report}]]</button>
+            <a class="btn ghost" th:href="@{/doctor/appointments}">[[#{t.cancel}]]</a>
+        </form>
+
+        <aside>
+            <div class="card" style="margin-bottom:16px">
+                <h2>[[#{t.patient}]]</h2>
+                <div class="detail-grid" style="grid-template-columns:1fr 1fr">
+                    <div><b>[[#{t.name}]]</b><span th:text="${appointment.patient.fullName}"></span></div>
+                    <div><b>[[#{t.age}]]</b><span th:text="${appointment.patient.age}"></span></div>
+                    <div style="grid-column:1/-1"><b>[[#{t.reason_for_visit}]]</b><span th:text="${appointment.reason ?: '-'}"></span></div>
+                </div>
+            </div>
+            <div class="card">
+                <h2>[[#{t.previous_visits}]]</h2>
+                <div th:each="c : ${history}" style="padding:8px 0;border-bottom:1px solid #eef2f7">
+                    <b th:text="${@fmt.date(c.consultationDate)}"></b> <span th:text="${c.reason}"></span>
+                    <div class="muted" th:if="${c.diagnosis}" th:text="#{t.diagnosis} + ': ' + ${c.diagnosis}"></div>
+                </div>
+                <div th:each="r : ${pastReports}" style="padding:8px 0;border-bottom:1px solid #eef2f7">
+                    <b th:text="${@fmt.date(r.createdAt.toLocalDate())}"></b> <span class="badge">[[#{t.report}]]</span>
+                    <div class="muted" th:text="${r.diagnosis}"></div>
+                </div>
+                <div class="empty-note" th:if="${#lists.isEmpty(history) and #lists.isEmpty(pastReports)}">[[#{t.no_previous_visit_recorded}]]</div>
+            </div>
+        </aside>
+    </div>
+</main>
+</body>
+</html>

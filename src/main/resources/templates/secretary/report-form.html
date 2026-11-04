@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Update report', ~{::main})}">
+<body>
+<main>
+    <div th:replace="~{fragments/parts :: formbar('repForm', '/secretary/reports', 'Reports', '/secretary/reports', 'Update report')}"></div>
+    <h1 class="page-title">[[#{t.report}]]</h1>
+    <h2 class="subtitle" th:text="#{t.update_report} + ' - ' + ${report.patient.fullName}"></h2>
+    <form id="repForm" class="doc-form" th:action="@{/secretary/reports/{id}(id=${report.id})}" th:object="${form}" method="post">
+        <div th:replace="~{fragments/parts :: errors}"></div>
+        <div class="kv-row">
+            <table class="kv">
+                <tr><td class="k">[[#{t.patient}]]</td><td><input class="ro" readonly th:value="${report.patient.fullName}"></td></tr>
+                <tr><td class="k">[[#{t.appointment}]]</td><td><input class="ro" readonly th:value="${@fmt.dateTime(report.appointment.appointmentDateTime)}"></td></tr>
+            </table>
+        </div>
+        <table class="kv note-row">
+            <tr><td class="k" style="width:150px">[[#{t.diagnosis}]] <i>*</i></td><td><textarea th:field="*{diagnosis}" rows="3" required maxlength="1000"></textarea></td></tr>
+            <tr><td class="k">[[#{t.medicine_prescribed}]]</td><td><textarea th:field="*{medicinePrescribed}" rows="3" maxlength="1000"></textarea></td></tr>
+            <tr><td class="k">[[#{t.doctor_s_comment}]]</td><td><textarea th:field="*{doctorComment}" rows="3" maxlength="2000"></textarea></td></tr>
+        </table>
+        <button type="submit" class="btn success">&#10003; [[#{t.save}]]</button>
+        <a class="btn ghost" th:href="@{/secretary/reports}">[[#{t.cancel}]]</a>
+    </form>
+</main>
+</body>
+</html>

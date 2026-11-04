@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('My reports', ~{::main})}">
+<body>
+<main>
+    <div class="page-head"><div><h1>[[#{t.my_reports}]]</h1><p>[[#{t.reports_you_have_written}]]</p></div></div>
+    <div class="card table-wrap" data-paged>
+        <table class="list">
+            <thead><tr><th>[[#{t.date}]]</th><th>[[#{t.patient}]]</th><th>[[#{t.diagnosis}]]</th><th></th></tr></thead>
+            <tbody th:each="r : ${rows}" data-row>
+            <tr>
+                <td th:text="${@fmt.dateTime(r.createdAt)}"></td>
+                <td th:text="${r.patient.fullName}"></td>
+                <td th:text="${r.diagnosis}"></td>
+                <td class="actions">
+                    <button type="button" class="btn small ghost" data-toggle-detail>[[#{t.view}]]</button>
+                    <a class="btn small" th:href="@{/doctor/appointments/{id}/report(id=${r.appointment.id})}">[[#{t.update}]]</a>
+                </td>
+            </tr>
+            <tr class="detail" hidden><td colspan="4"><div class="detail-grid">
+                <div><b>[[#{t.medicine_prescribed}]]</b><span th:text="${r.medicinePrescribed ?: '-'}"></span></div>
+                <div><b>[[#{t.comment}]]</b><span th:text="${r.doctorComment ?: '-'}"></span></div>
+            </div></td></tr>
+            </tbody>
+            <tbody th:if="${#lists.isEmpty(rows)}"><tr><td colspan="4" class="empty-note">[[#{t.no_report_yet}]]</td></tr></tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>
