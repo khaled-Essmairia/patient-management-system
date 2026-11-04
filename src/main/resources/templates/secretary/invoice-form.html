@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(${form.id == null ? 'New invoice' : 'Update invoice'}, ~{::main})}">
+<body>
+<main>
+    <div th:replace="~{fragments/parts :: formbar('invForm', '/secretary/invoices', 'Invoices', '/secretary/invoices', ${form.id == null ? 'New invoice' : 'Update invoice'})}"></div>
+    <h1 class="page-title">[[#{t.invoice}]]</h1>
+    <h2 class="subtitle" th:text="${@tr.t(form.id == null ? 'New Invoice' : 'Update Invoice')}"></h2>
+    <form id="invForm" class="doc-form" th:action="@{/secretary/invoices}" th:object="${form}" method="post">
+        <div th:replace="~{fragments/parts :: errors}"></div>
+        <input type="hidden" th:field="*{id}">
+        <div class="kv-row">
+            <table class="kv">
+                <tr><td class="k">[[#{t.invoice_ref}]]</td><td><input class="ro" readonly th:value="${ref}"></td></tr>
+                <tr><td class="k">[[#{t.patient}]] <i>*</i></td><td><select th:field="*{patientId}" required>
+                    <option value="">[[#{t.select_patient}]]</option>
+                    <option th:each="p : ${patients}" th:value="${p.id}" th:text="${p.fullName + ' (' + p.ref + ')'}"></option></select></td></tr>
+                <tr><td class="k">[[#{t.invoice_date}]] <i>*</i></td><td><input type="date" th:field="*{invoiceDate}" required></td></tr>
+                <tr><td class="k">[[#{t.description}]] <i>*</i></td><td><input th:field="*{description}" required maxlength="255"></td></tr>
+            </table>
+            <table class="kv">
+                <tr><td class="k" th:text="#{t.unit_price} + ' (' + ${currency} + ') *'">Unit price</td><td><input id="up" type="number" min="0" step="0.001" th:field="*{unitPrice}" required></td></tr>
+                <tr><td class="k">[[#{t.quantity}]] <i>*</i></td><td><input id="qt" type="number" min="1" th:field="*{quantity}" required></td></tr>
+                <tr><td class="k">[[#{t.vat_pct}]]</td><td><input id="vt" type="number" min="0" max="100" step="0.01" th:field="*{vatRate}"></td></tr>
+            </table>
+            <table class="kv">
+                <tr><td class="k">[[#{t.payment_method}]]</td><td><select th:field="*{paymentMethod}">
+                    <option th:each="m : ${paymentMethods}" th:value="${m}" th:text="${@tr.t(m.label)}"></option></select></td></tr>
+                <tr><td class="k">[[#{t.status}]]</td><td><select th:field="*{status}">
+                    <option th:each="s : ${statuses}" th:value="${s}" th:text="${@tr.t(s.label)}"></option></select></td></tr>
+                <tr><td class="k">[[#{t.total_ht}]]</td><td><input class="ro" readonly id="tht"></td></tr>
+                <tr><td class="k">[[#{t.total_ttc}]]</td><td><input class="ro" readonly id="ttc"></td></tr>
+            </table>
+        </div>
+        <button type="submit" class="btn success">&#10003; [[#{t.save}]]</button>
+        <a class="btn ghost" th:href="@{/secretary/invoices}">[[#{t.cancel}]]</a>
+    </form>
+    <script>
+        (function () {
+            var up = document.getElementById('up'), qt = document.getElementById('qt'), vt = document.getElementById('vt');
+            function calc() {
+                var h = (parseFloat(up.value) || 0) * (parseInt(qt.value, 10) || 0);
+                document.getElementById('tht').value = h.toFixed(2);
+                document.getElementById('ttc').value = (h * (1 + (parseFloat(vt.value) || 0) / 100)).toFixed(2);
+            }
+            [up, qt, vt].forEach(function (e) { e.addEventListener('input', calc); });
+            calc();
+        })();
+    </script>
+</main>
+</body>
+</html>

@@ -1,0 +1,38 @@
+/* Prescription, invoice and receipt pages (screen preview + paper) */
+*{box-sizing:border-box}
+body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;color:#111;margin:0;background:#e9edf2;font-size:14px;line-height:1.45}
+.bar{max-width:210mm;margin:14px auto;display:flex;gap:8px;padding:0 8px}
+.btn{display:inline-block;border:1px solid #2f80c0;background:#2f80c0;color:#fff;padding:8px 16px;border-radius:8px;font:600 13px/1 "Segoe UI",Tahoma,Arial,sans-serif;cursor:pointer;text-decoration:none}
+.btn.ghost{background:#fff;color:#1f2d3d;border-color:#ccd6e1}
+.sheet{background:#fff;margin:0 auto 24px;padding:12mm;box-shadow:0 2px 14px rgba(16,36,58,.15)}
+.sheet.rx{width:148mm;min-height:210mm}
+.sheet.inv{width:210mm;min-height:297mm}
+.letterhead{display:flex;justify-content:space-between;gap:16px;border-bottom:2px solid #1f6aa5;padding-bottom:8px;margin-bottom:10px}
+.letterhead h1{font-size:20px;margin:0 0 2px;color:#1f6aa5}
+.letterhead .where{text-align:right}
+[dir=rtl] .letterhead .where{text-align:left}
+.meta{display:flex;gap:6px 24px;flex-wrap:wrap;margin:8px 0}
+.meta.two{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px}
+.meta b{color:#555;font-weight:600}
+.meta b::after{content:" :"}
+.title{text-align:center;font-size:18px;letter-spacing:1px;text-transform:uppercase;margin:14px 0}
+.meds{font-size:15px;line-height:1.9;padding-inline-start:24px;margin:8px 0}
+.advice{margin-top:14px;border-top:1px dashed #bbb;padding-top:8px}
+.advice b{color:#555}
+.sign{margin-top:38px;display:flex;flex-wrap:wrap;align-items:flex-end}
+.stamp{border-top:1px solid #333;padding-top:4px;min-width:60mm;text-align:center;margin-inline-start:auto;font-size:12px}
+.foot{width:100%;text-align:center;font-size:11px;color:#555;margin-top:12px}
+table.lines{width:100%;border-collapse:collapse;margin:12px 0}
+.lines th,.lines td{border:1px solid #999;padding:6px 8px;text-align:start}
+.lines th{background:#f0f4f8;font-size:12px}
+.lines .num,.totals-box .num{text-align:end;white-space:nowrap}
+.totals-box{margin-inline-start:auto;border-collapse:collapse;min-width:80mm;margin-bottom:10px}
+.totals-box td{padding:5px 10px;border-bottom:1px solid #ddd}
+.totals-box .grand td{font-weight:700;border-top:2px solid #111;font-size:15px}
+.paid-note{margin:14px 0;padding:10px 12px;border:1px solid #bfe8d0;background:#f1fbf5;border-radius:6px;font-size:15px}
+.ltr{direction:ltr;unicode-bidi:embed}
+@media print{
+  body{background:#fff}
+  .noprint{display:none!important}
+  .sheet{box-shadow:none;margin:0;padding:0;width:auto!important;min-height:0!important}
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Invoices', ~{::main})}">
+<body>
+<main>
+    <div class="page-head">
+        <div><h1>[[#{t.invoices_payments}]]</h1><p>[[#{t.create_invoices_and_follow_what_has_been_paid}]]</p></div>
+        <a class="btn" th:href="@{/secretary/invoices/new}"><svg class="icon"><use href="#i-plus"/></svg>[[#{t.new_invoice}]]</a>
+    </div>
+    <div class="stats">
+        <div class="stat orange"><div class="v" th:text="${@fmt.money(unpaidTotal)} + ' ' + ${currency}"></div><div class="l">[[#{t.unpaid}]]</div></div>
+        <div class="stat green"><div class="v" th:text="${@fmt.money(paidTotal)} + ' ' + ${currency}"></div><div class="l">[[#{t.paid}]]</div></div>
+    </div>
+    <form class="toolbar" method="get" th:action="@{/secretary/invoices}">
+        <select name="status"><option value="">[[#{t.all_statuses}]]</option>
+            <option th:each="s : ${statuses}" th:value="${s}" th:text="${@tr.t(s.label)}" th:selected="${status == s}"></option></select>
+        <button class="btn ghost" type="submit">[[#{t.filter}]]</button>
+    </form>
+    <div class="card table-wrap" data-paged>
+        <table class="list">
+            <thead><tr><th>[[#{t.ref}]]</th><th>[[#{t.date}]]</th><th>[[#{t.patient}]]</th><th>[[#{t.description}]]</th><th class="num">[[#{t.total_ht}]]</th><th class="num">[[#{t.vat}]]</th><th class="num">[[#{t.total_ttc}]]</th><th>[[#{t.status}]]</th><th></th></tr></thead>
+            <tbody th:each="i : ${rows}" data-row>
+            <tr>
+                <td th:text="${i.reference}"></td>
+                <td th:text="${@fmt.date(i.invoiceDate)}"></td>
+                <td><a th:href="@{/secretary/patients/{id}(id=${i.patient.id})}" th:text="${i.patient.fullName}"></a></td>
+                <td th:text="${i.description}"></td>
+                <td class="num" th:text="${@fmt.money(i.totalHt)}"></td>
+                <td class="num" th:text="${@fmt.money(i.vatAmount)}"></td>
+                <td class="num"><b th:text="${@fmt.money(i.totalTtc)}"></b></td>
+                <td><span class="badge" th:classappend="'s-' + ${i.status.name().toLowerCase()}" th:text="${@tr.t(i.status.label)}"></span></td>
+                <td class="actions">
+                    <button type="button" class="btn small ghost" data-toggle-detail>[[#{t.view}]]</button>
+                    <form th:if="${i.status.name() == 'UNPAID'}" th:action="@{/secretary/invoices/{id}/pay(id=${i.id})}" method="post">
+                        <button class="btn small success" type="submit">[[#{t.mark_paid}]]</button></form>
+                    <a class="btn small ghost" th:href="@{/secretary/invoices/{id}/print(id=${i.id})}" target="_blank">[[#{t.print}]]</a>
+                    <a class="btn small ghost" th:if="${i.status.name() == 'PAID'}" th:href="@{/secretary/invoices/{id}/receipt(id=${i.id})}" target="_blank">[[#{t.receipt}]]</a>
+                    <a class="btn small ghost" th:href="@{/secretary/invoices/{id}/edit(id=${i.id})}">[[#{t.update}]]</a>
+                    <form th:action="@{/secretary/invoices/{id}/delete(id=${i.id})}" method="post" th:attr="data-confirm=#{t.delete_this_invoice}">
+                        <button class="btn small danger" type="submit">[[#{t.delete}]]</button></form>
+                </td>
+            </tr>
+            <tr class="detail" hidden><td colspan="9"><div class="detail-grid">
+                <div><b>[[#{t.patient}]]</b><span th:text="${i.patient.fullName + ' (' + i.patient.ref + ')'}"></span></div>
+                <div><b>[[#{t.unit_price}]]</b><span th:text="${@fmt.money(i.unitPrice) + ' ' + currency}"></span></div>
+                <div><b>[[#{t.quantity}]]</b><span th:text="${i.quantity}"></span></div>
+                <div><b>[[#{t.vat_rate}]]</b><span th:text="${i.vatRate + ' %'}"></span></div>
+                <div><b>[[#{t.payment_method}]]</b><span th:text="${i.paymentMethod != null ? @tr.t(i.paymentMethod.label) : '-'}"></span></div>
+            </div></td></tr>
+            </tbody>
+            <tbody th:if="${#lists.isEmpty(rows)}"><tr><td colspan="9" class="empty-note">[[#{t.no_invoice_found}]]</td></tr></tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

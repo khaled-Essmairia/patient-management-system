@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html th:lang="${#locale.language}" th:dir="${#locale.language == 'ar' ? 'rtl' : 'ltr'}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${invoice.reference} + ' · ' + ${invoice.patient.fullName}">Invoice</title>
+    <link rel="stylesheet" th:href="@{/css/print.css}">
+    <style>@page { size: A4 portrait; margin: 14mm; }</style>
+</head>
+<body>
+<div class="noprint bar">
+    <button type="button" class="btn" onclick="window.print()">[[#{t.print}]]</button>
+    <a class="btn ghost" th:href="@{/secretary/invoices}">[[#{t.back}]]</a>
+</div>
+<div class="sheet inv">
+    <header class="letterhead">
+        <div class="who">
+            <h1 th:text="${@clinic.doctor != null ? @clinic.doctor.displayName : @clinic.name}">Dr. Name</h1>
+            <div th:if="${@clinic.doctor != null}" th:text="${@tr.t(@clinic.doctor.doctorType)}"></div>
+        </div>
+        <div class="where">
+            <b th:text="${@clinic.name}">Clinic</b>
+            <div th:if="${!#strings.isEmpty(@clinic.address)}" th:text="${@clinic.address}"></div>
+            <div th:if="${!#strings.isEmpty(@clinic.phone)}">[[#{t.tel}]] <span class="ltr" th:text="${@clinic.phone}"></span></div>
+        </div>
+    </header>
+
+    <h2 class="title" th:if="${!receipt}">[[#{t.invoice}]]</h2>
+    <h2 class="title" th:if="${receipt}">[[#{t.payment_receipt}]]</h2>
+
+    <div class="meta two">
+        <div>
+            <div><b th:text="${receipt ? #messages.msg('t.receipt_no') : #messages.msg('t.invoice_no')}">No</b> <span th:text="${invoice.reference}"></span></div>
+            <div><b>[[#{t.date}]]</b> <span th:text="${@fmt.date(invoice.invoiceDate)}"></span></div>
+        </div>
+        <div>
+            <div><b>[[#{t.patient}]]</b> <span th:text="${invoice.patient.fullName}"></span></div>
+            <div><b>[[#{t.patient_ref}]]</b> <span th:text="${invoice.patient.ref}"></span></div>
+        </div>
+    </div>
+
+    <table class="lines">
+        <thead><tr><th>[[#{t.description}]]</th><th class="num">[[#{t.unit_price}]]</th><th class="num">[[#{t.quantity}]]</th><th class="num">[[#{t.total_ht}]]</th><th class="num">[[#{t.vat_pct}]]</th><th class="num">[[#{t.total_ttc}]]</th></tr></thead>
+        <tbody><tr>
+            <td th:text="${invoice.description}"></td>
+            <td class="num" th:text="${@fmt.money(invoice.unitPrice)}"></td>
+            <td class="num" th:text="${invoice.quantity}"></td>
+            <td class="num" th:text="${@fmt.money(invoice.totalHt)}"></td>
+            <td class="num" th:text="${invoice.vatRate}"></td>
+            <td class="num" th:text="${@fmt.money(invoice.totalTtc)}"></td>
+        </tr></tbody>
+    </table>
+
+    <table class="totals-box">
+        <tr><td>[[#{t.total_ht}]]</td><td class="num" th:text="${@fmt.money(invoice.totalHt) + ' ' + currency}"></td></tr>
+        <tr><td>[[#{t.vat}]]</td><td class="num" th:text="${@fmt.money(invoice.vatAmount) + ' ' + currency}"></td></tr>
+        <tr class="grand"><td>[[#{t.total_ttc}]]</td><td class="num" th:text="${@fmt.money(invoice.totalTtc) + ' ' + currency}"></td></tr>
+    </table>
+
+    <div class="meta two">
+        <div><b>[[#{t.payment_method}]]</b> <span th:text="${invoice.paymentMethod != null ? @tr.t(invoice.paymentMethod.label) : '-'}"></span></div>
+        <div><b>[[#{t.status}]]</b> <span th:text="${@tr.t(invoice.status.label)}"></span></div>
+    </div>
+    <p class="paid-note" th:if="${receipt}">[[#{t.received_from}]] <b th:text="${invoice.patient.fullName}"></b> :
+        <b th:text="${@fmt.money(invoice.totalTtc) + ' ' + currency}"></b></p>
+
+    <footer class="sign">
+        <div class="stamp">[[#{t.signature_and_stamp}]]</div>
+        <div class="foot" th:if="${!#strings.isEmpty(@clinic.footer)}" th:text="${@clinic.footer}"></div>
+        <div class="foot">[[#{t.printed_on}]] <span th:text="${@fmt.date(@fmt.today())}"></span></div>
+    </footer>
+</div>
+</body>
+</html>
