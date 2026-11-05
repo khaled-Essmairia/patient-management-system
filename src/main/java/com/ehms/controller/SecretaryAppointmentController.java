@@ -7,9 +7,16 @@ import com.ehms.service.LineMapper;
 import com.ehms.sms.ReminderService;
 import com.ehms.web.Qs;
 import jakarta.validation.Valid;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,8 +47,8 @@ public class SecretaryAppointmentController {
         this.mapper = mapper;
     }
 
-    @GetMapping
-    public String list(@RequestParam(required = false) AppointmentStatus status, Model model) {
+   // @GetMapping
+    public String listOld(@RequestParam(required = false) AppointmentStatus status, Model model) {
         Page<Appointment> result = appointments.search(null, status, null, null, "",
                 Pageable.unpaged(Sort.by(Sort.Direction.DESC, "appointmentDateTime")));
         model.addAttribute("rows", result.getContent());
@@ -51,7 +58,46 @@ public class SecretaryAppointmentController {
         model.addAttribute("smsHours", reminders.getHoursBefore());
         return "secretary/appointments";
     }
+    @GetMapping
+    public String list(@RequestParam(required = false) AppointmentStatus status,
+                       @RequestParam(required = false) String period,
+                       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                       Model model) {
+        Page<Appointment> result = appointments.search(null, status, null, null, "",
+                Pageable.unpaged(Sort.by(Sort.Direction.DESC, "appointmentDateTime")));
+        List<Appointment> rows = result.getContent();
 
+        LocalDate today = LocalDate.now();
+        LocalDate from = null, to = null;
+        if ("today".equals(period)) {
+            from = today;
+            to = today;
+        } else if ("week".equals(period)) {
+            from = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            to = from.plusDays(6);
+        } else if ("day".equals(period) && date != null) {
+            from = date;
+            to = date;
+        }
+        if (from != null) {
+            final LocalDate f = from, t = to;
+            rows = rows.stream()
+                    .filter(a -> {
+                        LocalDate d = a.getAppointmentDateTime().toLocalDate();
+                        return !d.isBefore(f) && !d.isAfter(t);
+                    })
+                    .toList();
+        }
+
+        model.addAttribute("rows", rows);
+        model.addAttribute("status", status);
+        model.addAttribute("period", period);
+        model.addAttribute("date", date);
+        model.addAttribute("statuses", AppointmentStatus.values());
+        model.addAttribute("smsReady", reminders.isReady());
+        model.addAttribute("smsHours", reminders.getHoursBefore());
+        return "secretary/appointments";
+    }
     private String formView(Model model, AppointmentForm form) {
         model.addAttribute("form", form);
         model.addAttribute("patients", patients.findAllByOrderByLastNameAscFirstNameAsc());

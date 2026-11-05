@@ -11,8 +11,24 @@
     <form class="toolbar" method="get" th:action="@{/secretary/appointments}">
         <select name="status"><option value="">[[#{t.all_statuses}]]</option>
             <option th:each="s : ${statuses}" th:value="${s}" th:text="${@tr.t(s.label)}" th:selected="${status == s}"></option></select>
+
+        <select name="period" id="periodSel">
+            <option value="" th:selected="${period == null or period == ''}">[[#{t.all_dates}]]</option>
+            <option value="today" th:selected="${period == 'today'}">[[#{t.today}]]</option>
+            <option value="week" th:selected="${period == 'week'}">[[#{t.this_week}]]</option>
+            <option value="day" th:selected="${period == 'day'}">[[#{t.specific_day}]]</option>
+        </select>
+        <input type="date" name="date" id="dateSel" th:value="${date}">
+
         <button class="btn ghost" type="submit">[[#{t.filter}]]</button>
     </form>
+    <script>
+    (function () {
+        var p = document.getElementById('periodSel'), d = document.getElementById('dateSel');
+        function sync() { d.style.display = p.value === 'day' ? '' : 'none'; if (p.value !== 'day') d.value = ''; }
+        p.addEventListener('change', sync); sync();
+    })();
+    </script>
     <div class="card table-wrap" data-paged>
         <table class="list">
             <thead><tr><th>[[#{t.date_time}]]</th><th>[[#{t.patient}]]</th><th>[[#{t.reason}]]</th><th class="num" th:text="#{t.fee} + ' (' + ${currency} + ')'">Fee</th><th>[[#{t.status}]]</th><th></th></tr></thead>

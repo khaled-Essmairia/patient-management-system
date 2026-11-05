@@ -11,9 +11,12 @@
         <input type="hidden" th:field="*{id}">
         <div class="kv-row">
             <table class="kv">
-                <tr><td class="k">[[#{t.patient}]] <i>*</i></td><td><select th:field="*{patientId}" required>
-                    <option value="">[[#{t.select_patient}]]</option>
-                    <option th:each="p : ${patients}" th:value="${p.id}" th:text="${p.fullName + ' (' + p.ref + ')'}"></option></select></td></tr>
+                <tr><td class="k">[[#{t.patient}]] <i>*</i></td><td>
+                    <select th:field="*{patientId}" class="searchable" th:attr="data-search-placeholder=#{t.select_patient}" required>
+                        <option value="">[[#{t.select_patient}]]</option>
+                        <option th:each="p : ${patients}" th:value="${p.id}" th:text="${p.fullName + ' (' + p.ref + ')'}"></option>
+                    </select>
+                </td></tr>
                 <tr><td class="k">[[#{t.date_time}]] <i>*</i></td><td><input type="datetime-local" th:field="*{appointmentDateTime}" required></td></tr>
             </table>
             <table class="kv">
@@ -26,6 +29,81 @@
         <button type="submit" class="btn success">&#10003; [[#{t.save}]]</button>
         <a class="btn ghost" th:href="@{/secretary/appointments}">[[#{t.cancel}]]</a>
     </form>
+
+    <style>
+        .ss { position: relative; width: 100%; }
+        .ss-btn { width: 100%; text-align: left; padding: 8px 10px; background: #fff;
+                  border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer; font: inherit; }
+        .ss-btn::after { content: "\25BE"; float: right; }
+        .ss-panel { position: fixed; z-index: 2000;
+                    background: #fff; border: 1px solid #cbd5e1; border-radius: 8px;
+                    box-shadow: 0 6px 18px rgba(0,0,0,.15); }
+        .ss-panel[hidden] { display: none; }
+        .ss-search { width: calc(100% - 16px); margin: 8px; padding: 7px 10px;
+                     border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+        .ss-list { list-style: none; margin: 0; padding: 0 0 6px; max-height: 220px; overflow-y: auto; }
+        .ss-list li { padding: 7px 12px; cursor: pointer; }
+        .ss-list li:hover, .ss-list li.sel { background: #e6f0fa; }
+        .ss-list li.none { color: #888; cursor: default; }
+        select.ss-native { position: absolute; left: 0; bottom: 0; width: 1px; height: 1px;
+                           opacity: 0; pointer-events: none; }
+    </style>
+    <script>
+    document.querySelectorAll('select.searchable').forEach(function (sel) {
+        var wrap = document.createElement('div'); wrap.className = 'ss';
+        sel.parentNode.insertBefore(wrap, sel); wrap.appendChild(sel);
+        sel.classList.add('ss-native'); sel.tabIndex = -1;
+
+        var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'ss-btn';
+        var panel = document.createElement('div'); panel.className = 'ss-panel'; panel.hidden = true;
+        var input = document.createElement('input'); input.type = 'text'; input.className = 'ss-search';
+        input.placeholder = sel.dataset.searchPlaceholder || 'Search...';
+        var list = document.createElement('ul'); list.className = 'ss-list';
+        panel.appendChild(input); panel.appendChild(list);
+        wrap.appendChild(btn); wrap.appendChild(panel);
+
+        function label() { btn.textContent = sel.options[sel.selectedIndex].text; }
+        function close() { panel.hidden = true; }
+        function render(q) {
+            list.innerHTML = ''; q = q.toLowerCase(); var count = 0;
+            Array.prototype.forEach.call(sel.options, function (o, i) {
+                if (o.value === '' || o.text.toLowerCase().indexOf(q) < 0) return;
+                var li = document.createElement('li'); li.textContent = o.text; li.dataset.i = i;
+                if (i === sel.selectedIndex) li.className = 'sel';
+                li.addEventListener('mousedown', function (e) {
+                    e.preventDefault();
+                    sel.selectedIndex = i;
+                    sel.dispatchEvent(new Event('change', { bubbles: true }));
+                    label(); close();
+                });
+                list.appendChild(li); count++;
+            });
+            if (!count) { var n = document.createElement('li'); n.className = 'none'; n.textContent = '—'; list.appendChild(n); }
+        }
+        function place() {
+            var r = btn.getBoundingClientRect();
+            panel.style.left = r.left + 'px';
+            panel.style.top = (r.bottom + 4) + 'px';
+            panel.style.width = r.width + 'px';
+        }
+        function open() { panel.hidden = false; place(); input.value = ''; render(''); input.focus(); }
+
+        btn.addEventListener('click', function () { panel.hidden ? open() : close(); });
+        input.addEventListener('input', function () { render(input.value); });
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') close();
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                var first = list.querySelector('li[data-i]');
+                if (first) first.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+            }
+        });
+        document.addEventListener('click', function (e) { if (!wrap.contains(e.target)) close(); });
+        window.addEventListener('resize', function () { if (!panel.hidden) place(); });
+        window.addEventListener('scroll', function () { if (!panel.hidden) place(); }, true);
+        label();
+    });
+    </script>
 </main>
 </body>
 </html>
